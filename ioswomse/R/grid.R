@@ -61,11 +61,10 @@ setioswogrid <- function(scenarios, cpues,
  
     # llsel
     if("llsel" %in% pars) {
-      if(grid[row, 'llsel'] == "Logistic") {
-        # CHANGE fleet 3 (S), 3 last params
-        ctl$size_selex_parms[10, ] <- c(-1,50,30,4,1,99,-3,0,0,0,0,0.5,0,0) 
-        ctl$size_selex_parms[11, ] <- c(-15,-5,-999,-1,1,99,-3,0,0,0,0,0.5,0,0) 
-        ctl$size_selex_parms[12, ] <- c(-5,9,-999,-1,1,99,-3,0,0,0,0,0.5,0,0) 
+      if(grid[row, "llsel"] == "Log") {
+        # CHANGE fleet 3 (S) 
+        ctl$size_selex_parms[7:12, "INIT"] <- c(142.2780, -20, 6.9794, 20, -999, -999)
+        ctl$size_selex_parms[c(8,10,11,12), "PHASE"] <- c(-5)
       }
     }
 

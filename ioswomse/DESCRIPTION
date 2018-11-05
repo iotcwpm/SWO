@@ -28,4 +28,4 @@ Suggests:
 VignetteBuilder: knitr
 License: European Union Public License
 LazyData: false
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
