@@ -52,16 +52,16 @@ setioswogrid <- function(scenarios, cpues,
     dir.create(dir)
 
 	# SETUP grid
-  foreach (i=grid$number, .errorhandling = "remove") %dopar% {
+  foreach (i=grid$iter, .errorhandling = "remove") %dopar% {
 
     dat <- dats
     ctl <- ctls
 
-    row <- which(grid$number == i)
+    row <- which(grid$iter == i)
  
     # llsel
     if("llsel" %in% pars) {
-      if(grid[row, "llsel"] == "Log") {
+      if(grid[row, "llsel"] == "Logistic") {
         # CHANGE fleet 3 (S) 
         ctl$size_selex_parms[7:12, "INIT"] <- c(142.2780, -20, 6.9794, 20, -999, -999)
         ctl$size_selex_parms[c(8,10,11,12), "PHASE"] <- c(-5)
@@ -195,8 +195,8 @@ setioswogrid <- function(scenarios, cpues,
     if("sigmaR" %in% pars) {
       ctl$SRparm["SR_sigmaR", c("INIT", "PRIOR")] <- grid[row, "sigmaR"]
     }
-
-		# CREATE dir
+		
+    # CREATE dir
 		dirname <- paste(dir, grid[row, "id"], sep='/')
 		dir.create(dirname)
 
