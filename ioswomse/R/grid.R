@@ -39,7 +39,8 @@ setioswogrid <- function(scenarios, cpues,
  	
   # READ source files
   dats <- r4ss::SS_readdat_3.24(datf, verbose=FALSE)
-  ctls <- r4ss::SS_readctl_3.24(file=ctlf, use_datlist=T, datlist=dats, verbose=FALSE)
+  ctls <- r4ss::SS_readctl_3.24(file=ctlf, use_datlist=T, datlist=dats,
+    verbose=FALSE, ptype=FALSE)
 
   # DEFAULT cpue
   cpue <- cpues_orig
@@ -80,13 +81,12 @@ setioswogrid <- function(scenarios, cpues,
           ctl$natM[2,] <- lorenzen$malM
         }
         else
-          ctl$natM[1,] <- grid[row, "M"]
+          ctl$natM[1:2,] <- grid[row, "M"]
     }
 
     # Growth + maturity
     if("growmat" %in% pars) {
       if(grid[row, 'growmat'] == "farley") {
-
         # Farley otolith female
         ctl$MG_parms[1:3,] <- rbind(
           # L_at_Amin_Fem_GP_1_
@@ -211,10 +211,10 @@ setioswogrid <- function(scenarios, cpues,
 
 		# WRITE modified files
 		# ctl
-    r4ss::SS_writectl_3.24(ctl, paste0(dirname, "/", name, ".ctl"), nseas=ctl$nseas)
+    r4ss::SS_writectl_3.24(ctl, file.path(dirname, paste0(name, ".ctl")), nseas=ctl$nseas)
 		
     # dat
-    r4ss::SS_writedat_3.24(dat, outfile=paste0(dirname, "/", name, ".dat"))
+    r4ss::SS_writedat_3.24(dat, outfile=file.path(dirname, paste0(name, ".dat")))
 	}
 	invisible(grid)
 } # }}}
