@@ -150,8 +150,8 @@ setioswogrid <- function(scenarios, cpues,
       if(grid[row, "cpue"] == "jappt") {
         # 15 - UJPLL_SW
         dat$CPUE <- subset(cpue , index != 15 | year < 2000)[, 1:5]
-        # SET lambdas$value = 0.001 for all but c(13:16,21)
-        ctl$lambdas[, "value"] <- 0.001
+        # SET lambdas$value = 0.001 for all Surv_ but c(13:16,21)
+        ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:32), "value"] <- 0.001
         ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:16,21), "value"] <- 1.000
         # SET Q_setup for UTW_JP
         ctl$Q_setup[, "Q_type"] <- 2
@@ -162,7 +162,7 @@ setioswogrid <- function(scenarios, cpues,
       else if(grid[row, "cpue"] == "jap") {
         dat$CPUE <- cpue[, 1:5]
         # SET lambdas$value = 0.001 for all but c(13:16)
-        ctl$lambdas[, "value"] <- 0.001
+        ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:32), "value"] <- 0.001
         ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:16), "value"] <- 1.000
         # SET Q_setup for UTW_JP
         ctl$Q_setup[, "Q_type"] <- 2
@@ -173,7 +173,7 @@ setioswogrid <- function(scenarios, cpues,
       else if(grid[row, "cpue"] == "twnpt") {
         dat$CPUE <- subset(cpue , name != 19 | year < 2000)[, 1:5]
         # SET lambdas$value = 0.001 for all but c(17:21)
-        ctl$lambdas[, "value"] <- 0.001
+        ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:32), "value"] <- 0.001
         ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(17:21), "value"] <- 1.000
         # SET Q_setup for UTW_LL
         ctl$Q_setup[, "Q_type"] <- 2
