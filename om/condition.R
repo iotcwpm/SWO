@@ -9,13 +9,13 @@
 library(ioswomse)
 
 library(doParallel)
-registerDoParallel(200)
+registerDoParallel(100)
 
 # --- SCENARIOS
 
 scenarios <- list(
   # Natural mortality, M
-  M=c(0.2, 0.4, 999),
+  M=c(0.20, 0.30, 999),
   # SR steepness
   steepness=c(0.6, 0.75, 0.9),
   # Rec variance
@@ -43,10 +43,11 @@ data(lorenzen)
 
 dir <- "grid"
 
-grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=FALSE, from=1)
+grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=FALSE)
 
 # -- RUN SS3 grid
-# $ parallel --jobs 200 --progress 'cd {} && ss3' ::: *
+
+# $ parallel --joblog log --jobs 200 --progress 'cd {} && ss3_3.24z && packss3run' ::: *
 
 runss3grid(grid, options="", dir=dir, pack=TRUE)
 
@@ -57,12 +58,23 @@ runss3grid(grid, options="", dir=dir, pack=TRUE)
 results <- loadRES(dir=dir, subdirs=grid$id, repfile = "Report.sso.gz",
   covarfile = "covar.sso.gz", compfile = "CompReport.sso.gz", grid=grid)
 
-save(results, file="out/resultsFULL.RData", compress="xz")
+save(grid, results, file="out/resultsALL.RData", compress="xz")
 
 
-# omfull
-omf <- loadomDT(dir=dir, repfile = "Report.sso", covarfile = "covar.sso",
-  compfile="CompReport.sso")
+# SUBSET by convergence level
+
+idx <- results$Convergence_Level < 0.001
+
+# CHECK Virgin Biomass
+
+
+# LOAD OMS
+
+omf <- loadOMS(subdirs=file.path(dir, grid$id[idx]),
+  repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
+
+# STK
+
 
 # SET range of ages fully selected
 range(omf, c("minfbar", "maxfbar")) <- c(2,8)
