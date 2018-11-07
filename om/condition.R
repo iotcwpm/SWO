@@ -73,6 +73,9 @@ idx <- results$Convergence_Level < 0.001
 omf <- loadOMS(subdirs=file.path(dir, grid$id[idx]),
   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
 
+# ----------------
+
+
 # STK
 
 
