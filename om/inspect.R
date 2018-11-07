@@ -82,7 +82,7 @@ results[, SB15SBMSY:=SSB_endyr/SSB_MSY]
 results[, SB15SBVirgin:=SSB_endyr/SSB_Virgin]
 
 # PLOTS
-pdf(file="status_plots.pdf")
+# pdf(file="status_plots.pdf")
 
 
 for (i in colnames(results)[1:9]) {
@@ -97,7 +97,7 @@ for (i in colnames(results)[1:9]) {
   print(ggplot(results, aes_string(x=i, y="F15FMSY")) + geom_boxplot())
 }
 
-dev.off()
+# dev.off()
 
 
 # test<- melt(results, id = "SSB_Virgin", measure = c("M","steepness"))
@@ -116,8 +116,8 @@ library(grid)
 
 grid.newpage()
 
-tiff(file="status_plots_SSBMSY.tiff", bg = "white", compression="lzw",width = 32, 
-     height = 20, units = "cm", res = 600)
+# tiff(file="status_plots_SSBMSY.tiff", bg = "white", compression="lzw",width = 32, 
+#      height = 20, units = "cm", res = 600)
 pushViewport(viewport(layout = grid.layout(3, 3)))
 
 vplayout <- function(x, y)
@@ -134,13 +134,24 @@ print(p7, vp = vplayout(3, 1))
 print(p8, vp = vplayout(3, 2))
 print(p9, vp = vplayout(3, 3))
 
-dev.off()
+# dev.off()
 
 ggplot(results, aes(y=ratio, x=steepness)) +
   geom_boxplot() +
   xlab("Steepness")+
   ylab("SBMSY/SBVirgin")+
   theme_bw()
+
+
+ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(M)))
+
+ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(llsel~scaling, scales="free_y") +
+  xlab("SBVirgin")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))
+
+
 
 for (i in colnames(results)[1:9]) {
 
