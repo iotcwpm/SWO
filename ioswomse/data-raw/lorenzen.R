@@ -31,24 +31,28 @@ M = 4.899*30^(-0.916)
 
 ## For female ray
 rayfem <- natM(279.6, 0.123, -2.55, 30)
-rayfem$M <- rayfem$M * optima(b, 4)
+rayfem$M <- rayfem$M * optima(rayfem, 4)
 
 ## For male ray
 raymal <- natM(213.8, 0.197, -2.28, 30)
-raymal$M <- raymal$M * optima(b, 4)
+raymal$M <- raymal$M * optima(raymal, 4)
 
 ## For female otolith
 otofem <- natM(249.6, 0.157, -2.13, 30)
-otofem$M <- otofem$M * optima(b, 4)
+otofem$M <- otofem$M * optima(otofem, 4)
+# RESCALE to 0.30 at age50
+otofem$M <- otofem$M / (otofem$M[7] / 0.25)
 
 ## For male otolith
 otomal <- natM(191.9, 0.235, -2.10, 30)
-otomal$M <- otomal$M * optima(b, 4)
+otomal$M <- otomal$M * optima(otomal, 4)
+# RESCALE to 0.30 at age50
+otomal$M <- otomal$M / (otomal$M[7] / 0.25)
 
 lorenzen <- data.frame(age=otofem$Age, femM=otofem$M, malM=otomal$M)
 
 save(lorenzen, file="../data/lorenzen.RData")
 
 
-plot(femM~age, lorenzen, type='b', ylim=c(0, 0.25))
+plot(femM~age, lorenzen, type='b', ylim=c(0, 1))
   points(malM~age, lorenzen, pch=19)
