@@ -11,8 +11,15 @@
 
 library(ggplot2)
 library(data.table)
+library(gridExtra)
+# library(rlang)
 
-load("out/resultsALL.RData")
+# setwd("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om")
+
+load("om/out/resultsALL.RData")
+
+SB0_low <- 159445 
+SB0_high <- 277605
 
 # SUBSET
 
@@ -20,121 +27,160 @@ idx <- results$Convergence_Level < 0.001
 
 results <- results[idx,]
 
+# CONVERT to factor
+
+results[, (colnames(results)[1:9]) := lapply(.SD, factor), .SDcols = colnames(results)[1:9]]
+
+results[M==999, M:="lorenzen"]
+
 
 # dist(SSB_Virgin)
-ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(M)))
+
+ggplot(results, aes(SSB_Virgin)) + geom_density(fill="grey90")+
+  geom_vline(xintercept=SB0_low, colour='red') +
+  geom_vline(xintercept=SB0_high, colour='red') +
+  xlab("SB0")+
+  ylab("Density")+
+  theme_bw()
+
+# dist(SSB_Virgin) by relevant factor
 
 ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)))+
   facet_grid(ess~llsel+scaling, scales="free_y") +
-  xlab("SBVirgin")+
+  xlab("SB0")+
   ylab("Density")+
+  theme_bw()+
   guides(fill=guide_legend("CPUE"))
 
 
 # dist(SSB_MSY/SSB_Virgin)
 
-# dist(SSB_MSY/SSB_Virgin) by relevant factor
-
 results[, ratio:=SSB_MSY/SSB_Virgin]
+
+ggplot(results, aes(x=ratio)) +
+  geom_density()
+
+# dist(SSB_MSY/SSB_Virgin) by relevant factor
 
 ggplot(results, aes(x=ratio)) +
   geom_density(aes(fill=factor(steepness))) +
   facet_grid(M~growmat, scales="free_y") +
-  xlab("SBMSY/SBVirgin")+
+  xlab("SBMSY/SB0")+
   ylab("Density")+
+  theme_bw()+
   guides(fill=guide_legend("Steepness"))
 
 
-# dist(SSB_endyr/SSB_Virgin=depletion) by relevant factor
+# dist(SSB_endyr/SSB_Virgin)
+results[, SSB15SSB0:=SSB_endyr/SSB_Virgin]
 
-results[, depletion:=SSB_endyr/SSB_Virgin]
-
-ggplot(results, aes(x=depletion)) +
-  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(ess~scaling)+#, scales="free_y") +
-  xlab("Depletion")+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(fill="grey90")+
+  xlab("SBcurrent/SB0")+
   ylab("Density")+
-  guides(fill=guide_legend("CPUE"))
-
-ggplot(results, aes(x=depletion)) +
-  geom_density(aes(fill=factor(ess)))
-
-#  SUBSET by SSB_Virgin and Depletion
-results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$depletion>0.61,1,2)]
-plot(results$SSB_Virgin, results$depletion, col=results$SBvirgin_high)
-ggplot(results, aes(SSB_Virgin,depletion)) + geom_point()+
   theme_bw()
 
+# dist(SSB_endyr/SSB_Virgin) by relevant factor
+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(ess~scaling)+#, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))+
+  theme_bw()
+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(ess~llsel+scaling)+#, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))+
+  theme_bw()
+
+
+# SSB_Virgin vs SSB_endyr/SSB_Virgin
+results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
 # write.table(test,"test_SSBB0.csv",sep=";", dec=".")
 
-idx2 <- results$SSB_Virgin<450000&results$depletion<0.61
+ggplot(results, aes(SSB_Virgin,SSB15SSB0)) + 
+  geom_point(aes(col=SBvirgin_high))+
+  xlab("SB0")+
+  ylab("SBcurrent/SB0")+
+  theme_bw()+
+  theme(legend.position="none")
+
+#  SUBSET by SSB_Virgin and SSB_endyr/SSB_Virgin
+  
+idx2 <- results$SSB_Virgin<450000&results$SSB15SSB0<0.61
   
 results <- results[idx2,]
 
-
 # EXPLORE 
 
-# CONVERT to factor
-results[, (colnames(results)[1:9]) := lapply(.SD, factor), .SDcols = colnames(results)[1:9]]
+#Creating status variables
+results[,c("F15FMSY","SSB15SSBMSY"):=list(F_endyr/Fstd_MSY,SSB_endyr/SSB_MSY)]
 
-results[, F15FMSY:=F_endyr/Fstd_MSY]
-results[, SB15SBMSY:=SSB_endyr/SSB_MSY]
-results[, SB15SBVirgin:=SSB_endyr/SSB_Virgin]
 
 # PLOTS
+
+plots1 <-list()
+plots2 <-list()
+plots3 <-list()
+plots4 <-list()
+
 # pdf(file="status_plots.pdf")
-
-
 for (i in colnames(results)[1:9]) {
-  
-  print(ggplot(results, aes_string(x=i, y="SSB_Virgin")) + geom_boxplot())
+
+ plots1[[i]]<- ggplot(results, aes_string(x=i, y="SSB_Virgin")) + geom_boxplot()+
+               ylab("SB0")
     
+ plots2[[i]] <- ggplot(results, aes_string(x=i, y="SSB15SSBMSY")) + geom_boxplot()+
+                 ylab("SBcurrent/SBMSY")
   
-  print(ggplot(results, aes_string(x=i, y="SSB15SSBMSY")) + geom_boxplot())
+ plots3[[i]] <- ggplot(results, aes_string(x=i, y="SSB15SSB0")) + geom_boxplot()+
+                 ylab("SBcurrent/SB0")
   
-  print(ggplot(results, aes_string(x=i, y="SSB15SSBVirgin")) + geom_boxplot())
-  
-  print(ggplot(results, aes_string(x=i, y="F15FMSY")) + geom_boxplot())
+ plots4[[i]]<- ggplot(results, aes_string(x=i, y="F15FMSY")) + geom_boxplot()+
+                ylab("Fcurrent/FMSY")
+ 
 }
 
-# dev.off()
-
-
-# test<- melt(results, id = "SSB_Virgin", measure = c("M","steepness"))
-
-p1 <-  print(ggplot(results, aes_string(x="M", y="SSB_Virgin")) + geom_boxplot()+scale_y_continuous(labels = scales::comma))
-p2 <-  print(ggplot(results, aes_string(x="steepness", y="SSB_Virgin")) + geom_boxplot())
-p3 <-  print(ggplot(results, aes_string(x="llq", y="SSB_Virgin")) + geom_boxplot())
-p4 <-  print(ggplot(results, aes_string(x="llsel", y="SSB_Virgin")) + geom_boxplot())
-p5 <-  print(ggplot(results, aes_string(x="cpue", y="SSB_Virgin")) + geom_boxplot())
-p6 <-  print(ggplot(results, aes_string(x="scaling", y="SSB_Virgin")) + geom_boxplot())
-p7 <-  print(ggplot(results, aes_string(x="sigmaR", y="SSB_Virgin")) + geom_boxplot())
-p8 <-  print(ggplot(results, aes_string(x="ess", y="SSB_Virgin")) + geom_boxplot())
-p9 <-  print(ggplot(results, aes_string(x="growmat", y="SSB_Virgin")) + geom_boxplot())
-
-library(grid)
-
-grid.newpage()
-
-# tiff(file="status_plots_SSBMSY.tiff", bg = "white", compression="lzw",width = 32, 
+# tiff(file="boxplot_SSBVirgin.tiff", bg = "white", compression="lzw",width = 32,
 #      height = 20, units = "cm", res = 600)
-pushViewport(viewport(layout = grid.layout(3, 3)))
+grid.arrange(plots1$M,plots1$steepness,plots1$sigmaR,plots1$ess,plots1$llq,
+             plots1$growmat,plots1$cpue,plots1$scaling,plots1$llsel,ncol=3,nrow=3)
+#dev.off()
 
-vplayout <- function(x, y)
-  
-  viewport(layout.pos.row = x, layout.pos.col = y)
+# tiff(file="boxplot_SSBcurr_SSBMSY.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(plots2$M,plots2$steepness,plots2$sigmaR,plots2$ess,plots2$llq,
+             plots2$growmat,plots2$cpue,plots2$scaling,plots2$llsel,ncol=3,nrow=3)
+#dev.off()
 
-print(p1, vp = vplayout(1, 1))
-print(p2, vp = vplayout(1, 2))
-print(p3, vp = vplayout(1, 3))
-print(p4, vp = vplayout(2, 1))
-print(p5, vp = vplayout(2, 2))
-print(p6, vp = vplayout(2, 3))
-print(p7, vp = vplayout(3, 1))
-print(p8, vp = vplayout(3, 2))
-print(p9, vp = vplayout(3, 3))
+# tiff(file="boxplot_plots_SSBcurr_SSB0.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(plots3$M,plots3$steepness,plots3$sigmaR,plots3$ess,plots3$llq,
+             plots3$growmat,plots3$cpue,plots3$scaling,plots3$llsel,ncol=3,nrow=3)
+#dev.off()
 
-# dev.off()
+# tiff(file="boxplot_Fcurr_FMSY.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(plots4$M,plots4$steepness,plots4$sigmaR,plots4$ess,plots4$llq,
+             plots4$growmat,plots4$cpue,plots4$scaling,plots4$llsel,ncol=3,nrow=3)
+#dev.off()
+
+
+# dist(SSB_MSY/SSB_Virgin) by relevant factor after subsettiing
+
+ggplot(results, aes(x=ratio)) +
+  geom_density(aes(fill=factor(steepness))) +
+  facet_grid(M~growmat, scales="free_y") +
+  xlab("SBMSY/SB0")+
+  ylab("Density")+
+  theme_bw()+
+  guides(fill=guide_legend("Steepness"))
+
 
 ggplot(results, aes(y=ratio, x=steepness)) +
   geom_boxplot() +
@@ -142,15 +188,27 @@ ggplot(results, aes(y=ratio, x=steepness)) +
   ylab("SBMSY/SBVirgin")+
   theme_bw()
 
-
+# dist(SSB_Virgin) by relevant factor after subsettiing
 ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(M)))
 
 ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(llsel~scaling, scales="free_y") +
-  xlab("SBVirgin")+
+  facet_grid(~scaling, scales="free_y") +
+  xlab("SB0")+
   ylab("Density")+
   guides(fill=guide_legend("CPUE"))
 
+# dist(SSB_endyr/SSB_Virgin) by relevant factor after subsettiing
+ggplot(results, aes(SSB15SSB0)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(~scaling, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))
+
+
+
+#OTHER PLOTS
+
+pdf(file="ssbvirgin.pdf")
 
 
 for (i in colnames(results)[1:9]) {
