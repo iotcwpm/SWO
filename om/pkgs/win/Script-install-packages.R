@@ -18,6 +18,8 @@ install.packages(file.path(Mydir, "FLCore_*.tar.gz"), repos = NULL, type="source
 install.packages(file.path(Mydir, "mse_*.tar.gz"),INSTALL_opts="--no-multiarch", repos = NULL, type="source")
 install.packages(file.path(Mydir, "r4ss_*.tar.gz"), repos = NULL, type="source")
 install.packages(file.path(Mydir, "ss3om_*.tar.gz"),INSTALL_opts="--no-multiarch", repos = NULL, type="source")
+install.packages(file.path(Mydir, "ioswomse_0.0.4.tar.gz"), INSTALL_opts="--no-multiarch", repos = NULL, type="source")
+
 
 # Load
 library(FLasher); citation("FLasher")
