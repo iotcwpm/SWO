@@ -9,7 +9,7 @@
 library(ioswomse)
 
 library(doParallel)
-registerDoParallel(100)
+registerDoParallel(200)
 
 # --- SCENARIOS
 
@@ -64,20 +64,91 @@ save(grid, results, file="out/resultsALL.RData", compress="xz")
 # SUBSET by convergence level
 
 idx <- results$Convergence_Level < 0.001
+results <- results[idx,]
+grid <- grid[idx,]
 
-# CHECK Virgin Biomass
+# SUBSET by depletion & SSB_Virgin
 
+results[, depletion:=SSB_endyr/SSB_Virgin]
+idx <- results$SSB_Virgin < 450000 & results$depletion < 0.61
+results <- results[idx,]
+grid <- grid[idx,]
 
 # LOAD OMS
 
-omf <- loadOMS(subdirs=file.path(dir, grid$id[idx]),
+# omf <- loadOMS(subdirs=file.path(dir, grid$id[idx]), combine=FALSE,
+#   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
+
+# metrics
+
+metrics <- loadFLQs(subdirs=file.path(dir, grid$id),
   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
+units(omqs[[1]]) <- "1000"
+units(omqs[[2]]) <- "t"
+units(omqs[[3]]) <- "t"
+units(omqs[[4]]) <- "f"
+
+# residuals(sr) & residuals(cpue)
+
+residuals <- loadRESIDs(subdirs=file.path(dir, grid$id),
+  repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
+
+save(results, grid, metrics, residuals, file="out/metrics.RData", compress="xz")
+
+
+
+# --- TODO
+
+
+
+# DEBUG
+trace(parallel:::sendMaster, at = 3L, tracer = quote({ str(list(what = what)) }))
+
+# LOAD FLS as DT
+
+odt <- loadFLS(subdirs=file.path(dir, grid$id[idx]), combine=FALSE,
+  repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
+
+setindex(odt, slot)
+
+# SIMPLIFY odt
+
+dt <- copy(odt)
+
+# TRIM iters in m.spwn, harvest.spwn
+dt[, keep:=TRUE]
+dt[iter > 1 & slot %in%
+  c("m.spwn", "harvest.spwn", "discards", "discards.n", "discards.wt"), keep:=FALSE]
+
+setindex(dt, keep)
+dt <- dt[(keep),]
+dt[, keep:=NULL]
+dt[, season:=NULL]
+
+system.time(stk <- as(dt, "FLStock"))
+
+system.time(stk <- as(dt[iter < 10], "FLStock"))
+system.time(stk <- as(dt[iter < 100], "FLStock"))
+system.time(stk <- as(dt[iter < 250], "FLStock"))
+system.time(stk <- as(dt[iter < 500], "FLStock"))
+
+
+# BUG catch.wt[1950:1955]
+
+# EXTRACT m
+system.time(m <- odt[slot == "m",])
+m[, slot:=NULL]
+m[, units:=NULL]
+system.time(fqm <- as(m, 'FLQuant'))
+
+# SUBSET 250 iters
+system.time(tes <- simplify(as(odt[iter %in% sample(m$iter, 250),], "FLStock"), "area"))
+
+plot(tes)
 
 # ----------------
 
-
 # STK
-
 
 # SET range of ages fully selected
 range(omf, c("minfbar", "maxfbar")) <- c(2,8)
