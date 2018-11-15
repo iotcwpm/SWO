@@ -12,11 +12,11 @@ author:
 - Rui Coelho\*
 date: "Mahe, Seychelles. 3 - 7 December 2018."
 output:
-  word_document:
-    toc: no
   pdf_document:
     fig_caption: yes
     number_sections: yes
+    toc: no
+  word_document:
     toc: no
 fontfamily: libertine
 header-includes:
@@ -25,19 +25,20 @@ header-includes:
 - \pagestyle{fancy}
 - \fancyhead{}
 - \fancyhead[L]{Rosa et al. - Swordfish OM}
-- \fancyhead[R]{IOTC-2018-SC21-XX}
+- \fancyhead[R]{IOTC-2018-SC21-XX-draft}
 license: Creative Commons Attribution-ShareAlike 4.0 International Public License
 bibliography: references.bib
-subtitle: IOTC-2018-SC21-XX - 21th Session Indian Ocean Tuna Commission Scientific
+subtitle: IOTC-2018-SC21-XX-draft - 21th Session Indian Ocean Tuna Commission Scientific
   Committee
 tags: IOTC SWO OM MSE
-abstract: " \n"
+abstract: |
+  This document presents the current status of development of an Operating Model for the Indian Ocean swordfish (*Xiphias gladius*) stock. It explores the role of the structural uncertainty in the current stock assessment by means of a grid of SS3 model fits. The current grid results in 2295 alternative population trajectories and productivity estimates. A subset of 2401 model runs is proposed to compose the base case OM, these runs were explored regarding the effects on several indicators and residual analysis of CPUE indices and stock-recruitment relationship. Cluster analysis was performed to identify model runs with similar population trajectories in order to decrease the number of runs included in the OM, as currently 2401 runs are too computationally demaning.
 ---
 
 ```{r, knitr, echo=FALSE, message=FALSE}
 library(knitr)
 opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE,
-  dev="pdf", out.width = "50%", fig.pos="hbt", fig.align="center")
+  dev="pdf", out.width = "50%", fig.pos="htbp", fig.align="center")
 opts_knit$set(root.dir = "C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO")
 ```
 
@@ -98,7 +99,7 @@ Growth and maturity are very important parameters in stock assessments. Swordfis
 
 
 ### Natural Mortality (M)
-Natural mortality is a common unknown in most stock assessment models. The base case considered in the stock assessment model was 0.2 constant for all ages, which was supplemented with an alternative value of 0.4 also constant for all ages as suggested by the WPM. After initial exploration of OM results it was clear that setting M at 0.4 would not produce plausible estimates of biomass, therefore, based on these results, the authors decided to set natural mortality to 0.3. A 3rd possibility using age-specific M values, based on the the Lorenzen equation was also included in the grid. The age specific mortality was scaled so that M at age at maturity (age 6) was 0.25. A total of 3 possibilities were therefore considered for M in this grid (Figure \ref{fig:m}:
+Natural mortality is a common unknown in most stock assessment models. The base case considered in the stock assessment model was 0.2 constant for all ages, which was supplemented with an alternative value of 0.4 also constant for all ages as suggested by the WPM. After initial exploration of OM results it was clear that setting M at 0.4 would not produce plausible estimates of biomass, therefore, based on these results, the authors decided to set natural mortality to 0.3 instead of 0.4. A 3rd possibility using age-specific M values, based on the the Lorenzen equation was also included in the grid. The age specific mortality was scaled so that M at age at maturity (age 6) was 0.25. A total of 3 possibilities were therefore considered for M in this grid (Figure \ref{fig:m}):
 
 * 0.2, constant for all ages
 * 0.3, constant for all ages
@@ -136,7 +137,7 @@ Two scenarios were considered for the efective catchability of the CPUE fleet. O
 Two values were considered for the true variability of recruitment in the population (*sigmaR*), specifically 0.2 and 0.6, as set by the variable `SR_sigmaR` in the SS3 control file. The WPM discussed that both lower and higher options should be considered, but that a further middle value could also be added in the future (0.4) [@WPM2017]. At this stage, and in order to not increase too much the grid of model runs, only the two extremes (0.2 and 0.6) were considered for recruitment variability.
 
 ### Summary of the OM grid of uncertanties
-Table 1 below summarizes the grid of uncertanties considered for the conditioning of the OM. This initial grid results in a total of 2,592 model runs.
+Table 1 below summarizes the grid of uncertanties considered for the conditioning of the OM. This grid results in a total of 2,592 model runs.
 
 Table: Summary view of the swordfish operating model grid.
 
@@ -153,7 +154,7 @@ Table: Summary view of the swordfish operating model grid.
 
 
 ```{r results}
-load("om/out/resultsALL.RData")
+load("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om/out/resultsALL.RData")
 
 SB0_low <- 159445 
 SB0_high <- 277605
@@ -171,7 +172,8 @@ results[, (colnames(results)[1:9]) := lapply(.SD, factor), .SDcols = colnames(re
 results[M==999, M:="lorenzen"]
 
 #Creating status variables
-results[,c("ratio","SSB15SSB0","F15FMSY","SSB15SSBMSY"):=list(SSB_MSY/SSB_Virgin,SSB_endyr/SSB_Virgin,F_endyr/Fstd_MSY,SSB_endyr/SSB_MSY)]
+#Creating status variables
+results[,c("ratio","SSB15SSB0","SSB15SSBMSY"):=list(SSB_MSY/SSB_Virgin,SSB_endyr/SSB_Virgin, SSB_endyr/SSB_MSY)]
 
 #identifying runs with SB0 > 450000 and SBcurrent/SB0 > 0.61
 results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
@@ -180,11 +182,10 @@ results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61
 
 ##Model selection
 
+
 Initial selection of models was based on convergence level. Although all models converged in the sense of obtaining the variance-covariance matrix, 191 model convergence levels were above 0.001, which has been described as an adequate threshold for model convergency. Therefore models that did not fit this criteria were excluded from further analysis.
  
-Exploration of results shed some light on the levels of uncertainty in the grid, as well as on problematic  areas of the grid: combinations of parameters leading to unreasonable or surprising results. 
-
-Conditioning of the albacore OM had to confront the problem of runs estimating very large values of virgin biomass to explain the observed catch levels and abundance trends when the imposed model parameters led to low stock productivity. The distribution of estimates for virgin biomass (SB0) in the current OM grid (Figure \ref{fig:densvb}) also show some models with very large estimates of virgin biomass, however on the lower end of the estimates the SB0 is considered reasonable.
+Conditioning of the albacore OM had to confront the problem of runs estimating very large values of virgin biomass to explain the observed catch levels and abundance trends when the imposed model parameters led to low stock productivity. The distribution of estimates for virgin spawning biomass (SB0) in the current OM grid (Figure \ref{fig:densvb}) also show some models with very large estimates of virgin biomass, however on the lower end the estimates of SB0 are considered reasonable.
 
 ```{r densvb, fig.cap="Distribution of the 2401 estimated values of virgin biomass (SB0). The red lines show the lower and higher values of SB0 returned by the stock assessment grid."}
 ggplot(results, aes(SSB_Virgin)) + geom_density(fill="grey90")+
@@ -207,7 +208,7 @@ ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)),alpha=0.3
   theme(legend.position = "top")
 ```
 
-Additionally, the same factors seem to be influent in the current stock status of SBcurrent/SB0 (Figure \ref{fig:depfactor}).
+Additionally, the same factors seem to be influencial in the current stock status of current (2015) spawning biomass (SBcurrent) to SB0 (Figure \ref{fig:depfactor}).
 
 ```{r depfactor, out.width = "80%", fig.cap="Distribution of values for SBcurrent/SB0 estimated by models with each of the three scaling scenarios (area, biomass and catch), CPUE series (Japanese only, jap, Japanese and Portuguese, jappt, and Taiwanese and Portuguese, twnpt), form of the selectivity curve (DoNorm, Double Normal and Logistic, Logistic) and effective sample size (2, 20)."}
 
@@ -223,7 +224,7 @@ ggplot(results, aes(x=SSB15SSB0)) +
 
 The effect of such large biomass estimates is apparent when compared with the current stock status they provide (Figure \ref{fig:compare}). Starting from those large abundances naturally leads to stocks that remain at very close to virgin levels, despite the long history of exploitation.
 
-```{r compare, fig.cap="Estimates of virgin biomass (SB0) vs. SBcurrent (2015)/SB0 levels for all 2401 model runs. Darker blue represents model runs with SB0 bellow 450,000 and low SBcurrent (2015)/SB0 levels, while lighter blue represents model runs with SB0 above 450,000 and high SBcurrent (2015)/SB0 levels"}
+```{r compare, fig.cap="Estimates of virgin biomass (SB0) vs. SBcurrent(2015)/SB0 levels for 2401 model runs. Darker blue represents model runs with SB0 bellow 450,000 and SBcurrent (2015)/SB0 bellow 0.61, while lighter blue represents model runs with SB0 above 450,000 and SBcurrent (2015)/SB0 above 0.61."}
 
 ggplot(results, aes(SSB_Virgin,SSB15SSB0)) + 
   geom_point(aes(col=SBvirgin_high))+
@@ -233,19 +234,18 @@ ggplot(results, aes(SSB_Virgin,SSB15SSB0)) +
   theme(legend.position="none")
 ```
 
-It seems clear that the final grid of runs should not include those runs starting from large biomasses and that are close to virgin levels, despite the long history of exploitation, as they will not provide an useful testing ground on which to test management procedures for the Indian Ocean swordfish stock. The authors decided to filter out the runs were virgin biomass is high (above 450,000) and depletion is low (above 0.60). A total of 136 model runs met this criteria, therefore were excluded of OM.
+It seems clear that the final grid of runs should not include those runs starting from large biomasses and that are close to virgin levels, as they will not provide an useful testing ground on which to test management procedures for the Indian Ocean swordfish stock. Given these results it was decided to filter out the runs were virgin spawning biomass is high (above 450,000) and SBcurrent/SB0 is high (above 0.61). A total of 136 model runs met this criteria, therefore were excluded of OM.
 
 
 ##Base Case Operating Model
 
+
 ###Model Inspection
 
-The application of both selection criteria presented above left a total of 2265 model runs as part of the base case OM. Inspection of the effects of the different uncertanties considered were explored visually for SB0, SBcurrent/SBMSY and SBcurrent/SB0 (Figures \ref{fig:boxSB0}, \ref{fig:boxSBcurrSBMSY},\ref{fig:boxSBcurrSB0})
-
 ```{r results2}
-idx2 <- results$SSB_Virgin<450000&results$SSB15SSB0<0.61
+idx <- results$SSB_Virgin<450000&results$SSB15SSB0<0.61
   
-results <- results[idx2,]
+results <- results[idx,]
 
 # EXPLORE 
 
@@ -268,35 +268,66 @@ for (i in colnames(results)[1:9]) {
  plots3[[i]] <- ggplot(results, aes_string(x=i, y="SSB15SSB0")) + geom_boxplot()+
                  ylab("SBcurrent/SB0")
   
- plots4[[i]]<- ggplot(results, aes_string(x=i, y="F15FMSY")) + geom_boxplot()+
-                ylab("Fcurrent/FMSY")
+ plots4[[i]]<- ggplot(results, aes_string(x=i, y="ratio")) + geom_boxplot()+
+                ylab("SBMSY/SB0")
  
 }
 
 ```
 
-```{r boxSB0, out.width = "80%", fig.cap=""}
+The application of both selection criteria presented above left a total of 2265 model runs as part of the base case OM. Inspection of the effects of the different uncertanties considered were explored visually for SB0, SBcurrent/SB0, SBcurrent/SBMSY,and SBMSY/SB0  (Figures \ref{fig:boxSB0}, \ref{fig:boxSBcurrSB0}, \ref{fig:boxSBcurrSBMSY}, \ref{fig:boxSBMSYSB0}).
+
+Estimates of SB0 were mainly impacted by the scaling by area of the CPUEs, the CPUE and shape of the selectivity function, while SBcurrent/SBMSY was affected by the scaling by area of the CPUEs, the CPUE and effective sample size. SBcurrent/SBMSY estimates were influenced by the coice of steepness and the scaling by area of the CPUEs. SBMSY/SB0 estimates varied by steepness, mortality and choice of growth and maturity schecule.
+
+```{r boxSB0, out.width = "80%", fig.cap="Boxplot of virgin spawning biomass (SB0) for 2265 model runs, by natural mortality (M), steepness, sigmaR, effective sample size (ESS), catchability (llq), growth and maturity (growtmat), CPUE, scaling and shape of selectivity curve (llsel) options considered in the uncertainty grid."}
 grid.arrange(plots1$M,plots1$steepness,plots1$sigmaR,plots1$ess,plots1$llq,
              plots1$growmat,plots1$cpue,plots1$scaling,plots1$llsel,ncol=3,nrow=3)
 ```
 
-```{r boxSBcurrSBMSY, out.width = "80%", fig.cap=""}
-grid.arrange(plots2$M,plots2$steepness,plots2$sigmaR,plots2$ess,plots2$llq,
-             plots2$growmat,plots2$cpue,plots2$scaling,plots2$llsel,ncol=3,nrow=3)
-```
-
-```{r boxSBcurrSB0, out.width = "80%", fig.cap=""}
+```{r boxSBcurrSB0, out.width = "80%", fig.cap="Boxplot of current spawning biomass (SBcurrent) to virgin spawning biomass (SB0) for 2265 model runs, by natural mortality (M), steepness, sigmaR, effective sample size (ESS), catchability (llq), growth and maturity (growtmat), CPUE, scaling and shape of selectivity curve (llsel) options considered in the uncertainty grid."}
 grid.arrange(plots3$M,plots3$steepness,plots3$sigmaR,plots3$ess,plots3$llq,
              plots3$growmat,plots3$cpue,plots3$scaling,plots3$llsel,ncol=3,nrow=3)
 ```
 
-Additional inspection of the effects of the interactions between relevant uncertanties considered were explored visually for SBMSY/SB0, SB0 and SBcurrent/SB0 (Figures \ref{fig:distSBMSYSB0}, \ref{fig:distSB0},\ref{fig:distSBcurrSB0})
+```{r boxSBcurrSBMSY, out.width = "80%", fig.cap="Boxplot of current spawning biomass (SBcurrent) to spawning biomass at MSY (SBMSY) for 2265 model runs, by natural mortality (M), steepness, sigmaR, effective sample size (ESS), catchability (llq), growth and maturity (growtmat), CPUE, scaling and shape of selectivity curve (llsel) options considered in the uncertainty grid."}
+grid.arrange(plots2$M,plots2$steepness,plots2$sigmaR,plots2$ess,plots2$llq,
+             plots2$growmat,plots2$cpue,plots2$scaling,plots2$llsel,ncol=3,nrow=3)
+```
 
+```{r boxSBMSYSB0, out.width = "80%", fig.cap="Boxplot of spawning biomass at MSY (SBMSY) to virgin spawning biomass (SB0) for 2265 model runs, by natural mortality (M), steepness, sigmaR, effective sample size (ESS), catchability (llq), growth and maturity (growtmat), CPUE, scaling and shape of selectivity curve (llsel) options considered in the uncertainty grid."}
+grid.arrange(plots4$M,plots4$steepness,plots4$sigmaR,plots4$ess,plots4$llq,
+             plots4$growmat,plots4$cpue,plots4$scaling,plots4$llsel,ncol=3,nrow=3)
+```
 
-```{r distSBMSYSB0, out.width = "80%", fig.cap=""}
+Additional inspection of the effects of the interactions between relevant uncertanties considered were explored visually for SB0, SBMSY/SB0, SBcurrent/SB0, and SBMSY/SB0 (Figures \ref{fig:distSB0}, \ref{fig:distSBcurrSB0}, \ref{fig:distSBsurrSBMSY}, \ref{fig:distSBMSYSB0})
 
+```{r distSB0, out.width = "80%", fig.cap="Distribution of the 2265 estimated values of virgin biomass (SB0) by relevant factor(CPUE, scaling and shape of the selectivy curve, llsel)."}
+ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(llsel~scaling, scales="free_y") +
+  xlab("SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))
+```
+
+```{r distSBcurrSB0, out.width = "80%", fig.cap="Distribution of the 2265 estimated values of current spawning biomass (SBcurrent)/virgin spawning biomass (SB0) by relevant factor(CPUE, scaling an effective sample size, ess)."}
+ggplot(results, aes(SSB15SSB0)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(ess~scaling, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))
+```
+
+```{r distSBcurrSBMSY, out.width = "80%", fig.cap="Distribution of the 2265 estimated values of current spawning biomass (SBcurrent) to spawning biomass at MSY (SBMSY) by relevant factor(steepness and scaling)."}
+ggplot(results, aes(SSB15SSBMSY)) + geom_density(aes(fill=factor(steepness)), alpha=0.3)+
+  facet_grid(~scaling, scales="free_y") +
+  xlab("SBcurrent/SBMSY")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))
+```
+
+```{r distSBMSYSB0, out.width = "80%", fig.cap="Distribution of the 2265 estimated values of spawning biomass at MSY (SBMSY) to virgin spawning biomass (SB0) by relevant factor(steepness, mortality and growth and maturity."}
 ggplot(results, aes(x=ratio)) +
-  geom_density(aes(fill=factor(steepness))) +
+  geom_density(aes(fill=factor(steepness)),alpha=0.3) +
   facet_grid(M~growmat, scales="free_y") +
   xlab("SBMSY/SB0")+
   ylab("Density")+
@@ -304,32 +335,47 @@ ggplot(results, aes(x=ratio)) +
   guides(fill=guide_legend("Steepness"))
 ```
 
-```{r distSB0, out.width = "80%", fig.cap=""}
-ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(~scaling, scales="free_y") +
-  xlab("SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))
+```{r results3}
+
+load("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om/out/metrics.RData")
+
+metrics$REC <- areaSums(metrics$REC)
+metrics$SSB <- areaSums(metrics$SSB)
+metrics$C <- areaSums(metrics$C)
+metrics$F <- areaSums(metrics$F)
 ```
 
-```{r distSBcurrSB0, out.width = "80%", fig.cap=""}
-ggplot(results, aes(SSB15SSB0)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(~scaling, scales="free_y") +
-  xlab("SBcurrent/SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))
+Further inspection included analysing stock-recruitment relationship residuals (Figure \ref{fig:SRres}) and CPUE residuals (Figure \ref{fig:CPUEres}).
+
+```{r SRres, out.width = "80%",fig.cap="Stock-recruitment relationship residuals for the 2265 runs for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+
+plot(residuals$sr)
+
 ```
+
+
+```{r CPUEres, out.width = "80%",fig.cap="CPUE residuals for the 2265 runs for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively. From top to bottom panels represent residuals for: JPLLNW, JPLLNE, JPLLSW, JPLLSE, TWLLNW, TWLLNE, TWLLSW, TWLLSE, PORSW"}
+
+plot(residuals$indices)
+
+```
+
+###Cluster analysis
+
+
 
 ###Model Trajectories
 
 The time series plot of the subsetted grid, 2265 runs, shows values for abundance and fishing mortality to be widely distributed (Figure \ref{fig:plotom}). 
 
-<!-- ```{r filterom, fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the filtered OM grid for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."} -->
-<!-- plot(oms) -->
-<!-- ``` -->
+```{r filterom, out.width = "80%",fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the filtered OM grid for Indian Ocean swordfish for male and female. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+
+plot(metrics)+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+```
 
 
-#Management procedures
+
+<!-- #Management procedures -->
 
 # Software Implementation
 
@@ -340,9 +386,11 @@ The software that has been developed for conditioning of the SS3-based OM for In
 
 This document has introduced the operating model for the Indian Ocean stock of swordfish conditioning and inspecting. The OM is built by introducing multiple sources of structural uncertainty to the stock assessment model conducted by WPB [@WPB2017] and based on the Stock Synthesis 3 platform [@Methot2013SS3]. 
 
-A number of model runs appear to introduce unreasonable combinations of parameters and data, and thus lead to estimates of virgin biomass and SBcurrent/SB0 that should not be considered feasible. A subjective filter was applied to exclude these runs from the final OM.
+A number of model runs appear to introduce unreasonable combinations of parameters and data, and thus lead to estimates of virgin biomass and SBcurrent/SB0 that should not be considered feasible. A subjective filter was applied to exclude these runs from the final OM, resulting in 2401 runs being kept.
 
-## Limitations
+For the time being, although it was not possible to run the first projections and intial testing of generic candidate management procedures, the authors advanced in the exploration and validation of OM results. Exploration of model results was performed through visual exploration of the effects of input parameters in estimated virgin biomass and current stock status. Initial validation of models was performed through analysis of residual patterns in the CPUE indices and S-R relationship. This was an initial step to inspect for trends in residuals, however, further checking for patterns in residuals should be attempted in the future.
+
+Additionally, as loading and projecting a grid of 2401 model runs has proven computationally demanding, an initial cluster analysis was perfomed in order to decrease the number of runs in the OM while convening into those runs the uncertainty that is present in the full OM.
 
 
 
@@ -350,8 +398,10 @@ A number of model runs appear to introduce unreasonable combinations of paramete
 
 Progress on the MSE work for swordfish will continue, with the limits imposed by the available time and personal resources. In brief, the short-term workplan will consist of the following tasks:
 
-- Carry out a detailed revision of the code generating the grid of SS3 models.
-- Compute an initial set of reference projections: constant catch and constant F.
+- Further validation of model results,
+- Carry out a detailed revision of the code generating the grid of SS3 models,
+- Compute an initial set of reference projections: constant catch and constant F,
+- Initial testing of generic candidate management procedures,
 - Compare the levels of variability due to parameter uncertainty, estimated through Markoc chain Monte Carlo (MCMC) with those arising from structural uncertainty.
 
 Work on this MSE exercise is being carried out around a public source code repository, available at <https://github.com/iotcwpm/SWO>. As work progresses, instructions will be made available for interested parties to install the necessary R packages and explore the results.
