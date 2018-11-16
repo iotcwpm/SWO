@@ -82,11 +82,14 @@ grid <- grid[idx,]
 # metrics
 
 metrics <- loadFLQs(subdirs=file.path(dir, grid$id),
-  repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
-units(omqs[[1]]) <- "1000"
-units(omqs[[2]]) <- "t"
-units(omqs[[3]]) <- "t"
-units(omqs[[4]]) <- "f"
+  repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz",
+  metrics=list(REC=rec, SSB=ssb, C=catch, F=fbar, B=stock))
+
+units(omqs[["REC"]]) <- "1000"
+units(omqs[["SSB"]]) <- "t"
+units(omqs[["C"]]) <- "t"
+units(omqs[["F"]]) <- "f"
+units(omqs[["B"]]) <- "t"
 
 # residuals(sr) & residuals(cpue)
 
