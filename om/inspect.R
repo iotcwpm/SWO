@@ -256,3 +256,8 @@ ctl <- r4ss::SS_readctl_3.24(file="sa/swo.ctl", use_datlist=T, datlist=dat,
 r4ss::SS_writectl_3.24(ctl, "check_sa/swo.ctl", nseas=ctl$nseas)
 r4ss::SS_writedat_3.24(dat, outfile="check_sa/swo.dat")
 
+# ---
+
+Are you able to check why the residuals 2000-2015 in "indices$UTWLL_SW" are not NAs?
+
+
