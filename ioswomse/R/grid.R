@@ -171,7 +171,7 @@ setioswogrid <- function(scenarios, cpues,
 
     # TWN late + PT in SW
       else if(grid[row, "cpue"] == "twnpt") {
-        dat$CPUE <- subset(cpue , name != 19 | year < 2000)[, 1:5]
+        dat$CPUE <- subset(cpue , index != 19 | year < 2000)[, 1:5]
         # SET lambdas$value = 0.001 for all but c(17:21)
         ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(13:32), "value"] <- 0.001
         ctl$lambdas[ctl$lambdas[,"fleet/survey"] %in% c(17:21), "value"] <- 1.000

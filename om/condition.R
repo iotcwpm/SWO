@@ -85,11 +85,11 @@ metrics <- loadFLQs(subdirs=file.path(dir, grid$id),
   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz",
   metrics=list(REC=rec, SSB=ssb, C=catch, F=fbar, B=stock))
 
-units(omqs[["REC"]]) <- "1000"
-units(omqs[["SSB"]]) <- "t"
-units(omqs[["C"]]) <- "t"
-units(omqs[["F"]]) <- "f"
-units(omqs[["B"]]) <- "t"
+units(metrics[["REC"]]) <- "1000"
+units(metrics[["SSB"]]) <- "t"
+units(metrics[["C"]]) <- "t"
+units(metrics[["F"]]) <- "f"
+units(metrics[["B"]]) <- "t"
 
 # residuals(sr) & residuals(cpue)
 
@@ -98,10 +98,7 @@ residuals <- loadRESIDs(subdirs=file.path(dir, grid$id),
 
 save(results, grid, metrics, residuals, file="out/metrics.RData", compress="xz")
 
-
-
 # --- TODO
-
 
 
 # DEBUG
