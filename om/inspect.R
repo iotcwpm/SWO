@@ -12,7 +12,8 @@
 library(ggplot2)
 library(data.table)
 library(gridExtra)
-library("ioswomse")
+library(ioswomse)
+library(ss3om)
 
 # setwd("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om")
 
@@ -222,24 +223,39 @@ load("om/out/metrics.RData")
 
 ###PLOT S-R residuals
 
-plot(residuals$sr)
+plot(residuals$sr)+geom_hline(yintercept=0, col="red")+theme_bw()
 
 
 ###PLOT CPUE residuals
-
 plot(residuals$indices)
 
+plot(residuals$indices[1:4])+geom_hline(yintercept=0, col="red")
+plot(residuals$indices[5:8])+geom_hline(yintercept=0, col="red")
+plot(residuals$indices[9])+geom_hline(yintercept=0, col="red")
+
+plot(residuals$indices[c(1,5)])+geom_hline(yintercept=0, col="red")
+plot(residuals$indices[c(2,6)])+geom_hline(yintercept=0, col="red")
+plot(residuals$indices[c(4,8)])+geom_hline(yintercept=0, col="red")
+plot(residuals$indices[c(3,7,9)])+geom_hline(yintercept=0, col="red")
 
 ###PLOTTING OM
 
+metrics$F <- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
 metrics$REC <- areaSums(metrics$REC)
 metrics$SSB <- areaSums(metrics$SSB)
 metrics$C <- areaSums(metrics$C)
-metrics$F <- areaSums(metrics$F)
-
-plot(metrics)+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
 
 
+plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+
+#PLOT SA
+
+sa <- readFLSss3("ioswomse/data-raw/sa", repfile="Report.sso.gz", covarfile="covar.sso.gz",
+                 compfile="CompReport.sso.gz")
+catch.sa <- areaSums(catch(sa))
+sa <- simplify(sa, "area")
+catch(sa) <- catch.sa
+plot(sa)+facet_grid(qname~unit, scales="free_y")
 
 
 #OTHER PLOTS
