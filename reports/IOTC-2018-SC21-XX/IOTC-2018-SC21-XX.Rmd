@@ -1,16 +1,15 @@
 ---
-title: Update on the conditioning of an operating model and initial testing of generic
-  candidate management procedures for the Indian Ocean swordfish
+title: Update on the conditioning of an operating model and model inspection for the Indian Ocean swordfish
 author:
-- Daniela Rosa^[Instituto PortuguÃƒÂªs do Mar e da Atmosfera (IPMA), Av. 5 de Outubro,
-  8700-305 OlhÃƒÂ£o, Portugal.]
+- Daniela Rosa^[Instituto Português do Mar e da Atmosfera (IPMA), Av. 5 de Outubro,
+  8700-305 Olhão, Portugal.]
 - Iago Mosqueira^[European Commission, DG Joint Research Centre (JRC), Directorate
   D - Sustainable Resources, Unit D.02 Water and Marine Resources, Via E. Fermi 2749,
   21027 Ispra VA, Italy. iago.mosqueira@ec.europa.eu]
 - Dan Fu^[Indian Ocean Tuna Commission Secretariat, Le Chantier Mall (2nd floor),
-  PO Box 1011, Victoria MahÃƒÂ©, Seychelles]
+  PO Box 1011, Victoria Mahé, Seychelles]
 - Rui Coelho\*
-date: "Mahe, Seychelles. 3 - 7 December 2018."
+date: "Mahé, Seychelles. 3 - 7 December 2018."
 output:
   pdf_document:
     fig_caption: yes
@@ -25,27 +24,28 @@ header-includes:
 - \pagestyle{fancy}
 - \fancyhead{}
 - \fancyhead[L]{Rosa et al. - Swordfish OM}
-- \fancyhead[R]{IOTC-2018-SC21-XX-draft}
+- \fancyhead[R]{IOTC-2018-SC21-12}
 license: Creative Commons Attribution-ShareAlike 4.0 International Public License
 bibliography: references.bib
-subtitle: IOTC-2018-SC21-XX-draft - 21th Session Indian Ocean Tuna Commission Scientific
+subtitle: IOTC-2018-SC21-12 - 21th Session Indian Ocean Tuna Commission Scientific
   Committee
 tags: IOTC SWO OM MSE
 abstract: |
-  This document presents the current status of development of an Operating Model for the Indian Ocean swordfish (*Xiphias gladius*) stock. It explores the role of the structural uncertainty in the current stock assessment by means of a grid of SS3 model fits. The current grid results in 2295 alternative population trajectories and productivity estimates. A subset of 2401 model runs is proposed to compose the base case OM, these runs were explored regarding the effects on several indicators and residual analysis of CPUE indices and stock-recruitment relationship. Cluster analysis was performed to identify model runs with similar population trajectories in order to decrease the number of runs included in the OM, as currently 2401 runs are too computationally demaning.
+  This document presents the current status of development of an Operating Model for the Indian Ocean swordfish (*Xiphias gladius*) stock. It explores the role of the structural uncertainty in the current stock assessment by means of a grid of SS3 model fits. The current grid results in 2592 alternative population trajectories and productivity estimates. Currently, a subset of 2265 model runs is proposed to compose the OM, these were explored regarding the effects on several indicators and residual analysis of CPUE indices and stock-recruitment relationship. A preliminary analysis was performed to identify clusters from which model runs can be resampled to reduce the number of runs in the OM, as currently 2265 runs are too computationally demanding.
 ---
 
 ```{r, knitr, echo=FALSE, message=FALSE}
 library(knitr)
 opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE,
   dev="pdf", out.width = "50%", fig.pos="htbp", fig.align="center")
-opts_knit$set(root.dir = "C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO")
+# opts_knit$set(root.dir = "C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO")
 ```
 
 ```{r, packages}
 library(ggplot2)
 library(data.table)
 library(gridExtra)
+library(ioswomse)
 ```
 
 
@@ -60,8 +60,7 @@ The development of the operating model (OM) was initialized in 2017 [@Mosqueira2
 # Operating model
 
 ```{r data}
-library(ioswomse)
-data(sa)
+load("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om/out/sa.RData")
 ```
 
 ##Structure and assumptions
@@ -73,7 +72,7 @@ The stock assessment explored the uncertainty with respect to various assumption
 A summary of the population trajectories estimated by the model used as base for the assembling of the OMN grid, `io4_NTP_h75_GaMf_r2_CL020`^[This is a four area model, with both the Japanese and Portuguese CPUEs, steepness of 0.75, slow growth, recruitment sigmaR=0.2, effective LF sample size capped at 20] can be found in Figure \ref{fig:sa}.
 
 ```{r sa, fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the 2017 SS3 stock assessment of Indian Ocean swordfish."}
-plot(sa)
+plot(sa)+facet_grid(qname~unit,scales="free_y")
 ```
 
 ## Structural uncertainty grid
@@ -113,7 +112,7 @@ Natural mortality is a common unknown in most stock assessment models. The base 
 Two values were used for the relative weight of length sampling data in the total likelihood, through changes in the efective sampling size parameter, of 2 and 20. This alters the relative weighting of length samples and CPUE series in informing the model about stock dynamics and the efects of fishing at length.
 
 ### CPUE series
-CPUE series presented to the WPB showed conflicting trends, specially in the final years of the series. The base case considered in the assessment used the Japanese late (1994-2015) CPUEs, with the Portuguese indices from 2000-2015 being used in the Southwest area. An alternative view could be gemnerated by usingh the Taiwanese CPUEs, again nincombination with those from the Portuguese fleet for the SW. A total of 3 possibilities are thus being considered for CPUE series in this preliminary model grid (Figure \ref{fig:cpues}), based on suggestions from the WPM [@WPM2017]:
+CPUE series presented to the WPB showed conflicting trends, specially in the final years of the series. The base case considered in the assessment used the Japanese late (1994-2015) CPUEs, with the Portuguese indices from 2000-2015 being used in the Southwest area. An alternative view could be generated by using the Taiwanese CPUEs, again  in combination with those from the Portuguese fleet for the SW. Currently, this third option  is not correctly implemented, as both indices (TWN and EU.PRT) are in use in the SW from 2000 to 2015. This was only noted recently and it was not possible to correct it by the meeting. A total of 3 possibilities are thus being considered for CPUE series in this model grid (Figure \ref{fig:cpues}), based on suggestions from the WPM [@WPM2017]:
 
 * *JPNlate + EU.PRT*: Japanese CPUE (1994-2015) with indices 2000-2015 in the SW replaced by the Portuguese index,
 * *JPNlate*: Japanese CPUE (1994-2015) for all areas,
@@ -342,7 +341,8 @@ load("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om/out/metrics.RData")
 metrics$REC <- areaSums(metrics$REC)
 metrics$SSB <- areaSums(metrics$SSB)
 metrics$C <- areaSums(metrics$C)
-metrics$F <- areaSums(metrics$F)
+metrics$F <- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
+
 ```
 
 Further inspection included analysing stock-recruitment relationship residuals (Figure \ref{fig:SRres}) and CPUE residuals (Figure \ref{fig:CPUEres}).
@@ -354,7 +354,7 @@ plot(residuals$sr)
 ```
 
 
-```{r CPUEres, out.width = "80%",fig.cap="CPUE residuals for the 2265 runs for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively. From top to bottom panels represent residuals for: JPLLNW, JPLLNE, JPLLSW, JPLLSE, TWLLNW, TWLLNE, TWLLSW, TWLLSE, PORSW"}
+```{r CPUEres, out.width = "80%",fig.cap="CPUE residuals for the 2265 runs for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively. From top to bottom panels represent residuals for: JPLL NW, JPLL NE, JPLL SW, JPLL SE, TWLL NW, TWLL NE, TWLL SW, TWLL SE, EU.POR SW"}
 
 plot(residuals$indices)
 
@@ -362,15 +362,19 @@ plot(residuals$indices)
 
 ###Cluster analysis
 
+A preliminary clustering analysis was performed, using hierarchical clustering with virgin spawning biomass, spawning biomass at MSY, current spawning biomass and biomass at MSY as response variables. For testing purposes, the 2265 were grouped in 4 clusters following the results of the hierarchical cluster analysis (Figure \ref{fig:dendogram}) each with 378, 560, 966, 361 runs. Virgin spawning biomass, biomass at MSY and SBcurr/SB0 by cluster are presented in Figure \ref{fig:clusters}.
 
+![Dendrogram of the cluster analysis results.\label{fig:dendogram}](figures/Dendogram.png){width=65%}
+
+![Boxplot of virgin spawnig biomass (SB0), biomass at MSY (B0), and SBcurr/SB0 by cluster.\label{fig:clusters}](figures/Clustering_quantities.png){width=60%}
 
 ###Model Trajectories
 
 The time series plot of the subsetted grid, 2265 runs, shows values for abundance and fishing mortality to be widely distributed (Figure \ref{fig:plotom}). 
 
-```{r filterom, out.width = "80%",fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the filtered OM grid for Indian Ocean swordfish for male and female. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+```{r plotom, out.width = "80%",fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the filtered OM grid for Indian Ocean swordfish for male and female. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
 
-plot(metrics)+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
 ```
 
 
@@ -384,13 +388,13 @@ The software that has been developed for conditioning of the SS3-based OM for In
 
 # Discussion
 
-This document has introduced the operating model for the Indian Ocean stock of swordfish conditioning and inspecting. The OM is built by introducing multiple sources of structural uncertainty to the stock assessment model conducted by WPB [@WPB2017] and based on the Stock Synthesis 3 platform [@Methot2013SS3]. 
+This document has introduced the operating model for the Indian Ocean stock of swordfish conditioning and inspecting. The OM is built by introducing multiple sources of structural uncertainty to the stock assessment model conducted by WPB [@WPB2017] and based on the Stock Synthesis 3 platform [@Methot2013SS3]. Currently, one element in the grid has not been correctly implemented, therefore results are still preliminary. When these runs have been implemented a similar approach to the described in this document will be used to explore the OM.
 
-A number of model runs appear to introduce unreasonable combinations of parameters and data, and thus lead to estimates of virgin biomass and SBcurrent/SB0 that should not be considered feasible. A subjective filter was applied to exclude these runs from the final OM, resulting in 2401 runs being kept.
+Currently, a number of model runs appear to introduce unreasonable combinations of parameters and data, and thus lead to estimates of virgin biomass and SBcurr/SB0 that should not be considered feasible. A subjective filter was applied to exclude these runs from the OM, resulting in 2265 runs being kept.
 
-For the time being, although it was not possible to run the first projections and intial testing of generic candidate management procedures, the authors advanced in the exploration and validation of OM results. Exploration of model results was performed through visual exploration of the effects of input parameters in estimated virgin biomass and current stock status. Initial validation of models was performed through analysis of residual patterns in the CPUE indices and S-R relationship. This was an initial step to inspect for trends in residuals, however, further checking for patterns in residuals should be attempted in the future.
+For the time being, although it was not possible to run the first projections and intial testing of generic candidate management procedures, the authors advanced in the exploration and validation of OM results. Exploration of model results was performed through visual exploration of the effects of input parameters in estimated virgin biomass and current stock status. Initial validation of models was performed through analysis of residual patterns in the CPUE indices and S-R relationship. This was an initial step to inspect for trends in residuals, however, in the future further checking for patterns in residuals will be attempted.
 
-Additionally, as loading and projecting a grid of 2401 model runs has proven computationally demanding, an initial cluster analysis was perfomed in order to decrease the number of runs in the OM while convening into those runs the uncertainty that is present in the full OM.
+Additionally, as loading and projecting a grid of 2265 model runs has proven computationally demanding, a preliminary cluster analysis was perfomed in order to identify runs that provide similar population trajectories. By sampling from those clusters the number of runs in the OM can be reduced, while keeping the uncertainty that is present in the OM. This was a preliminary analysis that is expected to be further developed in the future.
 
 
 
@@ -398,10 +402,9 @@ Additionally, as loading and projecting a grid of 2401 model runs has proven com
 
 Progress on the MSE work for swordfish will continue, with the limits imposed by the available time and personal resources. In brief, the short-term workplan will consist of the following tasks:
 
-- Further validation of model results,
-- Carry out a detailed revision of the code generating the grid of SS3 models,
+- Finalize the OM grid,
+- Explore model runs through diagnostics;
 - Compute an initial set of reference projections: constant catch and constant F,
-- Initial testing of generic candidate management procedures,
 - Compare the levels of variability due to parameter uncertainty, estimated through Markoc chain Monte Carlo (MCMC) with those arising from structural uncertainty.
 
 Work on this MSE exercise is being carried out around a public source code repository, available at <https://github.com/iotcwpm/SWO>. As work progresses, instructions will be made available for interested parties to install the necessary R packages and explore the results.
