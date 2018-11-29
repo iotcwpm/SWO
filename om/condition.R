@@ -43,7 +43,7 @@ data(lorenzen)
 
 dir <- "grid"
 
-grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=FALSE)
+grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=TRUE)
 
 # -- RUN SS3 grid
 
