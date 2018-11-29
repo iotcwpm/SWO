@@ -12,7 +12,8 @@
 library(ggplot2)
 library(data.table)
 library(gridExtra)
-# library(rlang)
+library(ioswomse)
+library(ss3om)
 
 # setwd("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om")
 
@@ -33,6 +34,16 @@ results[, (colnames(results)[1:9]) := lapply(.SD, factor), .SDcols = colnames(re
 
 results[M==999, M:="lorenzen"]
 
+
+#Creating status variables
+results[,c("ratio","SSB15SSB0","SSB15SSBMSY"):=list(SSB_MSY/SSB_Virgin,SSB_endyr/SSB_Virgin,SSB_endyr/SSB_MSY)]
+
+
+#identifying runs with SB0 > 450000 and SBcurrent/SB0 > 0.61
+results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
+# write.table(test,"test_SSBB0.csv",sep=";", dec=".")
+
+#INSPECTION PLOTS
 
 # dist(SSB_Virgin)
 
@@ -55,8 +66,6 @@ ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)))+
 
 # dist(SSB_MSY/SSB_Virgin)
 
-results[, ratio:=SSB_MSY/SSB_Virgin]
-
 ggplot(results, aes(x=ratio)) +
   geom_density()
 
@@ -72,7 +81,6 @@ ggplot(results, aes(x=ratio)) +
 
 
 # dist(SSB_endyr/SSB_Virgin)
-results[, SSB15SSB0:=SSB_endyr/SSB_Virgin]
 
 ggplot(results, aes(x=SSB15SSB0)) +
   geom_density(fill="grey90")+
@@ -98,10 +106,9 @@ ggplot(results, aes(x=SSB15SSB0)) +
   guides(fill=guide_legend("CPUE"))+
   theme_bw()
 
+#INSPECT results with high SSB_Virgin and high SSB_endyr/SSB_Virgin
 
 # SSB_Virgin vs SSB_endyr/SSB_Virgin
-results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
-# write.table(test,"test_SSBB0.csv",sep=";", dec=".")
 
 ggplot(results, aes(SSB_Virgin,SSB15SSB0)) + 
   geom_point(aes(col=SBvirgin_high))+
@@ -110,16 +117,14 @@ ggplot(results, aes(SSB_Virgin,SSB15SSB0)) +
   theme_bw()+
   theme(legend.position="none")
 
-#  SUBSET by SSB_Virgin and SSB_endyr/SSB_Virgin
+
+#  SUBSETTING results by SSB_Virgin and SSB_endyr/SSB_Virgin
   
-idx2 <- results$SSB_Virgin<450000&results$SSB15SSB0<0.61
-  
-results <- results[idx2,]
+idx <- results$SSB_Virgin < 450000 & results$SSB15SSB0 < 0.61
+results <- results[idx,]
+
 
 # EXPLORE 
-
-#Creating status variables
-results[,c("F15FMSY","SSB15SSBMSY"):=list(F_endyr/Fstd_MSY,SSB_endyr/SSB_MSY)]
 
 
 # PLOTS
@@ -141,8 +146,8 @@ for (i in colnames(results)[1:9]) {
  plots3[[i]] <- ggplot(results, aes_string(x=i, y="SSB15SSB0")) + geom_boxplot()+
                  ylab("SBcurrent/SB0")
   
- plots4[[i]]<- ggplot(results, aes_string(x=i, y="F15FMSY")) + geom_boxplot()+
-                ylab("Fcurrent/FMSY")
+ plots4[[i]]<- ggplot(results, aes_string(x=i, y="ratio")) + geom_boxplot()+
+                ylab("SBMSY/SB0")
  
 }
 
@@ -164,7 +169,7 @@ grid.arrange(plots3$M,plots3$steepness,plots3$sigmaR,plots3$ess,plots3$llq,
              plots3$growmat,plots3$cpue,plots3$scaling,plots3$llsel,ncol=3,nrow=3)
 #dev.off()
 
-# tiff(file="boxplot_Fcurr_FMSY.tiff", bg = "white", compression="lzw",width = 32,
+# tiff(file="boxplot_SSBMSY_SSB0.tiff", bg = "white", compression="lzw",width = 32,
 #      height = 20, units = "cm", res = 600)
 grid.arrange(plots4$M,plots4$steepness,plots4$sigmaR,plots4$ess,plots4$llq,
              plots4$growmat,plots4$cpue,plots4$scaling,plots4$llsel,ncol=3,nrow=3)
@@ -204,6 +209,47 @@ ggplot(results, aes(SSB15SSB0)) + geom_density(aes(fill=factor(cpue)), alpha=0.3
   ylab("Density")+
   guides(fill=guide_legend("CPUE"))
 
+
+# dist(SSB_MSY/SSB_Virgin) by relevant factor after subsettiing
+ggplot(results, aes(ratio)) + geom_density(aes(fill=steepness), alpha=0.3)+
+  facet_grid(~M, scales="free_y") +
+  xlab("SBMSY/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("Steepness"))
+
+
+#Loading residuals
+load("om/out/metrics.RData")
+
+###PLOT S-R residuals
+
+plot(residuals$sr)+geom_hline(yintercept=0, col="red")+theme_bw()
+
+
+###PLOT CPUE residuals
+plot(residuals$indices)
+
+
+###PLOTTING OM
+
+metrics$F <- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
+metrics$REC <- areaSums(metrics$REC)
+metrics$SSB <- areaSums(metrics$SSB)
+metrics$C <- areaSums(metrics$C)
+
+
+plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+
+#PLOT SA
+
+sa <- readFLSss3("ioswomse/data-raw/sa", repfile="Report.sso.gz", covarfile="covar.sso.gz",
+                 compfile="CompReport.sso.gz")
+catch.sa <- areaSums(catch(sa))
+sa <- simplify(sa, c("area"))
+catch(sa) <- catch.sa
+plot(sa)+facet_grid(qname~unit, scales="free_y")
+
+# save(sa, file="om/out/sa.RData", compress="xz")
 
 
 #OTHER PLOTS
