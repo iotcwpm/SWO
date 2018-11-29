@@ -69,10 +69,10 @@ grid <- grid[idx,]
 
 # SUBSET by depletion & SSB_Virgin
 
-results[, depletion:=SSB_endyr/SSB_Virgin]
-idx <- results$SSB_Virgin < 450000 & results$depletion < 0.61
-results <- results[idx,]
-grid <- grid[idx,]
+# results[, depletion:=SSB_endyr/SSB_Virgin]
+# idx <- results$SSB_Virgin < 450000 & results$depletion < 0.61
+# results <- results[idx,]
+# grid <- grid[idx,]
 
 # LOAD OMS
 
@@ -97,6 +97,10 @@ residuals <- loadRESIDs(subdirs=file.path(dir, grid$id),
   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
 
 save(results, grid, metrics, residuals, file="out/metrics.RData", compress="xz")
+
+
+
+
 
 # --- TODO
 
