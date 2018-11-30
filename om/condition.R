@@ -67,18 +67,6 @@ idx <- results$Convergence_Level < 0.001
 results <- results[idx,]
 grid <- grid[idx,]
 
-# SUBSET by depletion & SSB_Virgin
-
-# results[, depletion:=SSB_endyr/SSB_Virgin]
-# idx <- results$SSB_Virgin < 450000 & results$depletion < 0.61
-# results <- results[idx,]
-# grid <- grid[idx,]
-
-# LOAD OMS
-
-# omf <- loadOMS(subdirs=file.path(dir, grid$id[idx]), combine=FALSE,
-#   repfile="Report.sso.gz", covarfile="covar.sso.gz", compfile = "CompReport.sso.gz")
-
 # metrics
 
 metrics <- loadFLQs(subdirs=file.path(dir, grid$id),
