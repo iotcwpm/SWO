@@ -38,91 +38,21 @@ results[M==999, M:="lorenzen"]
 #Creating status variables
 results[,c("ratio","SSB15SSB0","SSB15SSBMSY"):=list(SSB_MSY/SSB_Virgin,SSB_endyr/SSB_Virgin,SSB_endyr/SSB_MSY)]
 
+# save(results, file="om/out/filter_results.RData", compress="xz")
 
 #identifying runs with SB0 > 450000 and SBcurrent/SB0 > 0.61
-results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
+# results[, SBvirgin_high:=ifelse(results$SSB_Virgin>450000&results$SSB15SSB0>0.61,1,2)]
 # write.table(test,"test_SSBB0.csv",sep=";", dec=".")
 
 #INSPECTION PLOTS
 
-# dist(SSB_Virgin)
-
-ggplot(results, aes(SSB_Virgin)) + geom_density(fill="grey90")+
-  geom_vline(xintercept=SB0_low, colour='red') +
-  geom_vline(xintercept=SB0_high, colour='red') +
-  xlab("SB0")+
-  ylab("Density")+
-  theme_bw()
-
-# dist(SSB_Virgin) by relevant factor
-
-ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)))+
-  facet_grid(ess~llsel+scaling, scales="free_y") +
-  xlab("SB0")+
-  ylab("Density")+
-  theme_bw()+
-  guides(fill=guide_legend("CPUE"))
-
-
-# dist(SSB_MSY/SSB_Virgin)
-
-ggplot(results, aes(x=ratio)) +
-  geom_density()
-
-# dist(SSB_MSY/SSB_Virgin) by relevant factor
-
-ggplot(results, aes(x=ratio)) +
-  geom_density(aes(fill=factor(steepness))) +
-  facet_grid(M~growmat, scales="free_y") +
-  xlab("SBMSY/SB0")+
-  ylab("Density")+
-  theme_bw()+
-  guides(fill=guide_legend("Steepness"))
-
-
-# dist(SSB_endyr/SSB_Virgin)
-
-ggplot(results, aes(x=SSB15SSB0)) +
-  geom_density(fill="grey90")+
-  xlab("SBcurrent/SB0")+
-  ylab("Density")+
-  theme_bw()
-
-# dist(SSB_endyr/SSB_Virgin) by relevant factor
-
-ggplot(results, aes(x=SSB15SSB0)) +
-  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(ess~scaling)+#, scales="free_y") +
-  xlab("SBcurrent/SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))+
-  theme_bw()
-
-ggplot(results, aes(x=SSB15SSB0)) +
-  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(ess~llsel+scaling)+#, scales="free_y") +
-  xlab("SBcurrent/SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))+
-  theme_bw()
-
-#INSPECT results with high SSB_Virgin and high SSB_endyr/SSB_Virgin
-
 # SSB_Virgin vs SSB_endyr/SSB_Virgin
-
 ggplot(results, aes(SSB_Virgin,SSB15SSB0)) + 
-  geom_point(aes(col=SBvirgin_high))+
+  geom_point(col="darkblue")+
   xlab("SB0")+
   ylab("SBcurrent/SB0")+
   theme_bw()+
   theme(legend.position="none")
-
-
-#  SUBSETTING results by SSB_Virgin and SSB_endyr/SSB_Virgin
-  
-idx <- results$SSB_Virgin < 450000 & results$SSB15SSB0 < 0.61
-results <- results[idx,]
-
 
 # EXPLORE 
 
@@ -175,8 +105,76 @@ grid.arrange(plots4$M,plots4$steepness,plots4$sigmaR,plots4$ess,plots4$llq,
              plots4$growmat,plots4$cpue,plots4$scaling,plots4$llsel,ncol=3,nrow=3)
 #dev.off()
 
+# dist(SSB_Virgin)
 
-# dist(SSB_MSY/SSB_Virgin) by relevant factor after subsettiing
+ggplot(results, aes(SSB_Virgin)) + geom_density(fill="grey90")+
+  geom_vline(xintercept=SB0_low, colour='red') +
+  geom_vline(xintercept=SB0_high, colour='red') +
+  xlab("SB0")+
+  ylab("Density")+
+  theme_bw()
+
+# dist(SSB_Virgin) by relevant factor
+
+ggplot(results, aes(SSB_Virgin)) + 
+  geom_density(aes(fill=factor(cpue)),alpha=0.3)+
+  facet_grid(llsel~scaling, scales="free_y") +
+  xlab("SB0")+
+  ylab("Density")+
+  theme_bw()+
+  guides(fill=guide_legend("CPUE"))
+
+
+# dist(SSB_endyr/SSB_Virgin)
+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(fill="grey90")+
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  theme_bw()
+
+# dist(SSB_endyr/SSB_Virgin) by relevant factor
+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(~scaling)+#, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))+
+  theme_bw()
+
+ggplot(results, aes(x=SSB15SSB0)) +
+  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(ess~llsel+scaling)+#, scales="free_y") +
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))+
+  theme_bw()
+
+# dist(SSB_endyr/SSB_MSY)
+
+ggplot(results, aes(x=SSB15SSBMSY)) +
+  geom_density(fill="grey90")+
+  xlab("SBcurrent/SBMSY")+
+  ylab("Density")+
+  theme_bw()
+
+# dist(SSB_endyr/SSB_MSY) by relevant factor
+
+ggplot(results, aes(x=SSB15SSBMSY)) +
+  geom_density(aes(fill=factor(cpue)), alpha=0.3)+
+  facet_grid(steepness~scaling)+#, scales="free_y") +
+  xlab("SBcurrent/SBMSY")+
+  ylab("Density")+
+  guides(fill=guide_legend("CPUE"))+
+  theme_bw()
+
+# dist(SSB_MSY/SSB_Virgin)
+
+ggplot(results, aes(x=ratio)) +
+  geom_density()
+
+# dist(SSB_MSY/SSB_Virgin) by relevant factor
 
 ggplot(results, aes(x=ratio)) +
   geom_density(aes(fill=factor(steepness))) +
@@ -184,37 +182,6 @@ ggplot(results, aes(x=ratio)) +
   xlab("SBMSY/SB0")+
   ylab("Density")+
   theme_bw()+
-  guides(fill=guide_legend("Steepness"))
-
-
-ggplot(results, aes(y=ratio, x=steepness)) +
-  geom_boxplot() +
-  xlab("Steepness")+
-  ylab("SBMSY/SBVirgin")+
-  theme_bw()
-
-# dist(SSB_Virgin) by relevant factor after subsettiing
-ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(M)))
-
-ggplot(results, aes(SSB_Virgin)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(~scaling, scales="free_y") +
-  xlab("SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))
-
-# dist(SSB_endyr/SSB_Virgin) by relevant factor after subsettiing
-ggplot(results, aes(SSB15SSB0)) + geom_density(aes(fill=factor(cpue)), alpha=0.3)+
-  facet_grid(~scaling, scales="free_y") +
-  xlab("SBcurrent/SB0")+
-  ylab("Density")+
-  guides(fill=guide_legend("CPUE"))
-
-
-# dist(SSB_MSY/SSB_Virgin) by relevant factor after subsettiing
-ggplot(results, aes(ratio)) + geom_density(aes(fill=steepness), alpha=0.3)+
-  facet_grid(~M, scales="free_y") +
-  xlab("SBMSY/SB0")+
-  ylab("Density")+
   guides(fill=guide_legend("Steepness"))
 
 

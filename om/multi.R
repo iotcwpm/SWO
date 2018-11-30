@@ -18,18 +18,14 @@ library(dplyr)
 library(grid)
 
 
-load("out/resultsALL.RData")
+load("om/out/resultsALL.RData")
 head(results)
 
 # SUBSET by converge level
 idx <- results$Convergence_Level < 0.001
 results <- results[idx,]
 
-# SUBSET by implausible B0 and depletion combinations
-results[, depletion:=SSB_endyr/SSB_Virgin]
-idx2 <- results$SSB_Virgin<450000 & results$depletion < 0.61
-results <- results[idx2,]
-
+results$SSB15SSB0 <- results$SSB_endyr/results$SSB_Virgin
 # 
 # response variables to consider: SSB_Virgin; SSB_MSY; SSB_endyr; TotYield_MSY
 resp <- results[, c("SSB_Virgin", "SSB_MSY", "SSB_endyr", "TotYield_MSY")]
@@ -88,25 +84,41 @@ head(results)
 summary(results$cl) # Number of models in each cluster
 
 #save plot
-tiff(file="Dendogram.tiff", bg = "white", compression="lzw",
-     width = 24, height = 16, units = "cm", res = 600)
+# png(file="reports/IOTC-2018-SC21-XX/figures/Dendogram.png", bg = "white", #compression="lzw",
+#      width = 24, height = 16, units = "cm", res = 600)
 plot(csin, hang=-1)
 rect.hclust(csin, 4)
-dev.off()
+# dev.off()
 
 
 #####
 ## make summaries for each cluster
 summaries <- results %>%
-  select(SSB_Virgin, TotYield_MSY, depletion) %>%
+  select(SSB_Virgin, TotYield_MSY, SSB15SSB0) %>%
   group_by(factor(cl)) %>%
-  summarise(SSB_Virgin = mean(SSB_Virgin), TotYield_MSY = mean(TotYield_MSY), depletion = mean(depletion))
+  summarise(SSB_Virgin = mean(SSB_Virgin), TotYield_MSY = mean(TotYield_MSY), SSB15SSB0 = mean(SSB15SSB0))
 summaries
 
 ###
 ## Plots from the clusters 
+
+cl.data <- melt(results, id="cl",measure=c("SSB_Virgin", "TotYield_MSY","SSB15SSB0"))
+labels <- c(SSB_Virgin="SB0",TotYield_MSY="BMSY",SSB15SSB0="SBcurr/SB0")
+
+cl.boxplot<- ggplot(cl.data, aes(factor(cl), value))+
+  geom_boxplot(aes(fill=factor(cl)))+
+  facet_grid(variable~., scales="free_y", labeller=labeller(variable=labels))+
+  theme_bw()+
+  theme(legend.position="none",
+        axis.title = element_blank())
+# png(file="reports/IOTC-2018-SC21-XX/figures/Clustering_quantities.png", bg = "white", #compression="lzw",
+#      width = 24, height = 24, units = "cm", res = 600)
+cl.boxplot
+# dev.off()
+
+
 # Virgin SSB
-cl.virgin <- ggplot(results, aes(factor(cl), SSB_Virgin))+
+cl.virgin <-ggplot(results, aes(factor(cl), SSB_Virgin))+
   geom_boxplot(aes(fill=factor(cl)))+
   ggtitle("SSB_Virgin")+
   theme_bw()
@@ -119,24 +131,24 @@ cl.msy <-ggplot(results, aes(factor(cl), TotYield_MSY))+
   theme_bw()
 cl.msy
 
-# Depletion
-cl.depletion <-ggplot(results, aes(factor(cl), depletion))+
+# SSB15SSB0
+cl.SSB15SSB0 <-ggplot(results, aes(factor(cl), SSB15SSB0))+
   geom_boxplot(aes(fill=factor(cl)))+
-  ggtitle("Depletion")+
+  ggtitle("SSB15SSB0")+
   theme_bw()
-cl.depletion
+cl.SSB15SSB0
 
 #make the plots
-tiff(file="Clustering_quantities.tiff", bg = "white", compression="lzw",
-     width = 24, height = 24, units = "cm", res = 600)
+# tiff(file="Clustering_quantities.tiff", bg = "white", compression="lzw",
+#      width = 24, height = 24, units = "cm", res = 600)
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(3, 1)))
 vplayout <- function(x, y)
   viewport(layout.pos.row = x, layout.pos.col = y)
 print(cl.virgin, vp = vplayout(1, 1))
 print(cl.msy, vp = vplayout(2, 1))
-print(cl.depletion, vp = vplayout(3, 1))
-dev.off()
+print(cl.SSB15SSB0, vp = vplayout(3, 1))
+# dev.off()
 
 
 
