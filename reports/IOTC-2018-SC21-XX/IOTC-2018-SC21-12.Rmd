@@ -288,7 +288,7 @@ metrics$F <- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
 
 ```
 
-Further inspection included analysing stock-recruitment relationship residuals (Figure \ref{fig:SRres}) and CPUE residuals (Figure \ref{fig:CPUEres}). Additionally, a linear regression was fit between first and last year CPUE residuals by fleet and area (Figure \ref{fig:CPUEtrend}), to inspect trends in CPUE residuals.
+Further inspection included analysing stock-recruitment relationship residuals (Figure \ref{fig:SRres}) and CPUE residuals (Figure \ref{fig:CPUEres}, \ref{fig:jap},\ref{fig:jappt},\ref{fig:twnpt}). Additionally, a linear regression was fit between first and last year CPUE residuals by fleet and area (Figure \ref{fig:CPUEtrend}), to inspect trends in CPUE residuals.
 
 ```{r SRres,out.width = "60%",fig.cap="Stock-recruitment relationship residuals for the 2336 runs for Indian Ocean swordfish. The black line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
 
@@ -303,11 +303,17 @@ plot(residuals$indices)+theme_bw()
 
 ```
 
+![Boxplot distridution of Japan LL CPUE residuals by area. \label{fig:jap}](figures/CPUEjap.png){width=60%}
+
+![Boxplot distridution of Japan LL + EU.Portugal LL CPUE residuals by area. \label{fig:jappt}](figures/CPUEjappt.png){width=60%}
+
+![Boxplot distribution of Taiwan LL + EU.Portugal LL CPUE residuals by area. \label{fig:twnpt}](figures/CPUEtwnpt.png){width=60%}
+
 ![CPUE residual trends by area and fleet for each model run. Each line represents a regression line fitted to the CPUE residuals of fleet/area for a given model.  13-16: Japan LL;  17-20: Taiwan LL; 21: EU.Portugal LL. \label{fig:CPUEtrend}](figures/CPUE_trend.png){width=60%}
 
 ###Cluster analysis
 
-A preliminary cluster analysis was performed, using hierarchical clustering with virgin spawning biomass, spawning biomass at MSY, current spawning biomass and biomass at MSY as response variables. For testing purposes, the 2336 were grouped in 4 clusters following the results of the hierarchical cluster analysis (Figure \ref{fig:dendogram}) each with 218, 862, 711, 545 runs. Virgin spawning biomass, biomass at MSY and SBcurrent/SB0 by cluster are presented in Figure \ref{fig:clusters}.
+A preliminary cluster analysis was performed, using hierarchical clustering with virgin spawning biomass, spawning biomass at MSY, current spawning biomass and biomass at MSY as response variables. For testing purposes, the 2336 runs were grouped in 4 clusters following the results of the hierarchical cluster analysis (Figure \ref{fig:dendogram}) each with 218, 862, 711, 545 runs. Virgin spawning biomass, biomass at MSY and SBcurrent/SB0 by cluster are presented in Figure \ref{fig:clusters}.
 
 ![Dendrogram of the cluster analysis results.\label{fig:dendogram}](figures/Dendogram.png){width=65%}
 
