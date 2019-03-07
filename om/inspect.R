@@ -17,23 +17,23 @@ library(ss3om)
 
 # setwd("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om")
 
-load("om/out/resultsALL.RData")
+load("om/out/metrics2.RData")
 
 SB0_low <- 159445 
 SB0_high <- 277605
 
 # SUBSET
-
-idx <- results$Convergence_Level < 0.001
-
-results <- results[idx,]
+# 
+# idx <- results$Convergence_Level < 0.001
+# 
+# results <- results[idx,]
 
 # CONVERT to factor
 
 results[, (colnames(results)[1:9]) := lapply(.SD, factor), .SDcols = colnames(results)[1:9]]
 
 results[M==999, M:="lorenzen"]
-
+results[, M:=as.factor(as.character(M))]
 
 #Creating status variables
 results[,c("ratio","SSB15SSB0","SSB15SSBMSY"):=list(SSB_MSY/SSB_Virgin,SSB_endyr/SSB_Virgin,SSB_endyr/SSB_MSY)]
@@ -185,16 +185,13 @@ ggplot(results, aes(x=ratio)) +
   guides(fill=guide_legend("Steepness"))
 
 
-#Loading residuals
-load("om/out/metrics.RData")
-
 ###PLOT S-R residuals
 
-plot(residuals$sr)+geom_hline(yintercept=0, col="red")+theme_bw()
+SR_plot <- plot(residuals$sr)+geom_hline(yintercept=0, col="red")+theme_bw()
 
 
 ###PLOT CPUE residuals
-plot(residuals$indices)
+CPUE_plot <- plot(residuals$indices)
 
 
 ###PLOTTING OM
@@ -205,10 +202,9 @@ metrics$SSB <- areaSums(metrics$SSB)
 metrics$C <- areaSums(metrics$C)
 
 
-plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+OM_plot <- plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
 
 #PLOT SA
-
 sa <- readFLSss3("ioswomse/data-raw/sa", repfile="Report.sso.gz", covarfile="covar.sso.gz",
                  compfile="CompReport.sso.gz")
 catch.sa <- areaSums(catch(sa))
@@ -216,7 +212,109 @@ sa <- simplify(sa, c("area"))
 catch(sa) <- catch.sa
 plot(sa)+facet_grid(qname~unit, scales="free_y")
 
-# save(sa, file="om/out/sa.RData", compress="xz")
+
+
+### INSPECTING SUBSET OF RUNS RELATIVE TO ALL OM
+
+res_sample <- rbind(results, results[results$sample==T,])
+res_sample [, subset:=c(rep("Total",dim(results)[1]),rep("Subset",dim(results[results$sample==T,])[1]))]
+
+
+# SSB_Virgin vs SSB_endyr/SSB_Virgin
+ggplot(res_sample, aes(SSB_Virgin,SSB15SSB0)) + 
+  geom_point(col="darkblue")+
+  facet_grid(~subset)+
+  xlab("SB0")+
+  ylab("SBcurrent/SB0")+
+  theme_bw()+
+  theme(legend.position="none")
+
+# dist(SSB_Virgin)
+
+ggplot(res_sample, aes(SSB_Virgin)) + geom_density(fill="grey90")+
+  geom_vline(xintercept=SB0_low, colour='red') +
+  geom_vline(xintercept=SB0_high, colour='red') +
+  facet_grid(~subset)+
+  xlab("SB0")+
+  ylab("Density")+
+  theme_bw()
+
+# dist(SSB_endyr/SSB_Virgin)
+
+ggplot(res_sample, aes(x=SSB15SSB0)) +
+  geom_density(fill="grey90")+
+  facet_grid(~subset)+
+  xlab("SBcurrent/SB0")+
+  ylab("Density")+
+  theme_bw()
+
+#dist(SSB_endyr/SSB_MSY)
+ggplot(res_sample, aes(x=SSB15SSBMSY)) +
+  geom_density(fill="grey90")+
+  facet_grid(~subset)+
+  xlab("SBcurrent/SBMSY")+
+  ylab("Density")+
+  theme_bw()
+
+###PLOT S-R residuals
+
+#subsetting by sampled suns
+resid_samp_sr <- iter(residuals$sr, results[results$sample==TRUE,]$iter)
+
+#plotting subset
+SR_plot2 <- plot(resid_samp_sr)+geom_hline(yintercept=0, col="red")+theme_bw()
+
+
+###PLOT CPUE residuals
+resid_ind_samp <- iter(residuals$indices, results[results$sample==TRUE,]$iter)
+CPUE_plot2 <- plot(resid_ind_samp)
+
+
+###PLOTTING OM
+
+metrics_sample <- iter(metrics, results[results$sample==TRUE,]$iter)
+#no need to redo the areaSums as this metrics is already summed by area
+
+OM_plot2 <- plot(metrics_sample[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+
+# tiff(file="SR-resid_compare.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(SR_plot, SR_plot2,ncol=2,nrow=1)
+#dev.off()
+
+# tiff(file="CPUE-resid_compare.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(CPUE_plot, CPUE_plot2,ncol=2,nrow=1)
+#dev.off()
+
+# tiff(file="OM_compare.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+grid.arrange(OM_plot, OM_plot2,ncol=2,nrow=1)
+#dev.off()
+
+####IDENTIFYING DRIVERS FOR CLUSTERS
+
+tot <-lapply(c(1:5), function(x) lapply(results[cl==x,1:9],length)) 
+clst <- lapply(c(1:5), function(x) lapply(results[cl==x,1:9],table))
+
+fin<-mapply(function(x,y) mapply(function(a,b) a/b, a=x,b=y), x=clst, y=tot, SIMPLIFY=FALSE)
+
+final <- as.data.frame(do.call(rbind, lapply(fin, Reduce, f=c)))
+final$clst <- rownames(final)
+colnames(final)[c(1,4)] <- c("0.20","0.60")
+final <- as.data.table(melt(final, id.vars="clst"))
+
+final$variable <- factor(final$variable,levels(final$variable)[c(1:6,15:20,7:14,21,22)])
+
+ggplot(data=final,aes(variable, value))+
+  geom_point()+
+  xlab("Levels")+
+  ylab("Proportion")+
+  annotate("segment", x=0, xend = "catch", 0.33, yend = 0.33)+
+  annotate("segment", x="catch", xend = "Logistic", 0.5, yend = 0.5)+
+  facet_grid(clst~.)
+
+
 
 
 #OTHER PLOTS
@@ -225,19 +323,19 @@ pdf(file="ssbvirgin.pdf")
 
 
 for (i in colnames(results)[1:9]) {
-
+  
   print(ggplot(results, aes_string(x=i, y="SSB_Virgin")) + geom_boxplot())
-
+  
   print(ggplot(results, aes(reorder(iter, SSB_Virgin), SSB_Virgin)) +
-    geom_point(aes_string(colour=i)) +
-    geom_hline(yintercept=100000, colour='red') +
-    facet_wrap(i))
-
+          geom_point(aes_string(colour=i)) +
+          geom_hline(yintercept=100000, colour='red') +
+          facet_wrap(i))
+  
   print(ggplot(results, aes(reorder(iter, SSB_endyr/SSB_Virgin), SSB_endyr/SSB_Virgin)) +
-    geom_point(aes_string(colour=i)) +
-    geom_hline(yintercept=0.15, colour='red') +
-    facet_wrap(i))
-
+          geom_point(aes_string(colour=i)) +
+          geom_hline(yintercept=0.15, colour='red') +
+          facet_wrap(i))
+  
 }
 
 dev.off()
@@ -249,13 +347,13 @@ results[, ratio:=SSB_Virgin / TotBio_Unfished]
 pdf(file="ssb2biom.pdf")
 
 for (i in colnames(results)[1:9]) {
-
+  
   print(ggplot(results, aes_string(x=i, y="ratio")) + geom_boxplot())
-
+  
   print(ggplot(results, aes(reorder(iter, ratio), ratio)) +
-    geom_point(aes_string(colour=i)) +
-    geom_hline(yintercept=0.5, colour='red') +
-    facet_wrap(i))
+          geom_point(aes_string(colour=i)) +
+          geom_hline(yintercept=0.5, colour='red') +
+          facet_wrap(i))
 }
 
 dev.off()
@@ -264,13 +362,9 @@ dev.off()
 
 dat <- r4ss::SS_readdat_3.24("sa/swo.dat", verbose=FALSE)
 ctl <- r4ss::SS_readctl_3.24(file="sa/swo.ctl", use_datlist=T, datlist=dat,
-  verbose=FALSE, ptype=FALSE)
+                             verbose=FALSE, ptype=FALSE)
 
 r4ss::SS_writectl_3.24(ctl, "check_sa/swo.ctl", nseas=ctl$nseas)
 r4ss::SS_writedat_3.24(dat, outfile="check_sa/swo.dat")
 
 # ---
-
-Are you able to check why the residuals 2000-2015 in "indices$UTWLL_SW" are not NAs?
-
-
