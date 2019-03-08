@@ -119,7 +119,7 @@ summary(results$cl) # Number of models in each cluster
 
 
 #save plot
-# png(file="reports/IOTC-2018-SC21-XX/figures/Dendogram.png", bg = "white", #compression="lzw",
+# tiff(file="Dendogram.tiff", bg = "white", compression="lzw",
 #      width = 24, height = 16, units = "cm", res = 600)
 plot(csin, hang=-1)
 rect.hclust(csin, 5)
@@ -137,7 +137,7 @@ summaries
 ###
 ## Plots from the clusters 
 
-cl.data <- melt(results, id="cl",measure=c("SSB_Virgin","SSB_MSY", "SSB_endyr", "TotYield_MSY","SSB15SSB0"))
+cl.data <- melt(results, id="cl",measure=c("SSB_Virgin","TotYield_MSY","SSB15SSB0"))
 labels <- c(SSB_Virgin="SB0",TotYield_MSY="BMSY",SSB15SSB0="SBcurr/SB0")
 
 cl.boxplot<- ggplot(cl.data, aes(factor(cl), value))+
@@ -146,7 +146,7 @@ cl.boxplot<- ggplot(cl.data, aes(factor(cl), value))+
   theme_bw()+
   theme(legend.position="none",
         axis.title = element_blank())
-# png(file="reports/IOTC-2018-SC21-XX/figures/Clustering_quantities.png", bg = "white", #compression="lzw",
+# tiff(file="Clustering_quantities.tiff", bg = "white", compression="lzw",
 #      width = 24, height = 24, units = "cm", res = 600)
 cl.boxplot
 # dev.off()

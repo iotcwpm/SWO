@@ -43,7 +43,7 @@ data(lorenzen)
 
 dir <- "grid"
 
-grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=TRUE)
+grid <- setioswogrid(scenarios, cpues=cpues, dir=dir, base='./sa/', write=FALSE)
 
 # -- RUN SS3 grid
 
@@ -62,6 +62,11 @@ save(grid, results, file="out/resultsALL.RData", compress="xz")
 
 
 # SUBSET by convergence level
+
+# load("om/out/resultsALL.RData")
+
+id <- results$Convergence_Level > 0.001
+grid2 <- grid[id,]
 
 idx <- results$Convergence_Level < 0.001
 results <- results[idx,]
