@@ -9,6 +9,8 @@
 library(ss3om)
 library(data.table)
 
+dir <- "io4_NTP_h75_GaMf_r2_CL020"
+
 # READ as FLStock
 swo <- readFLSss3("io4_NTP_h75_GaMf_r2_CL020")
 
@@ -49,9 +51,12 @@ mean(outca$catch / met$Catch)
 
 ggplot(outca, aes(x=Yr, y=catch)) + geom_line()
 
+# ---
 
+readRESIDss3(dir)
 
-#
+# ---
+
 library(r4ss)
 
 dats <- r4ss::SS_readdat("io4_NTP_h75_GaMf_r2_CL020/DATA.SS", verbose=FALSE)
