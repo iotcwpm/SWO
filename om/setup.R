@@ -13,10 +13,13 @@ library(FLBRP)
 load("out/oms.RData")
 
 # MERGE units
-stock <- simplify(swom$stock, c("unit"))
+# stock <- simplify(swom$stock, c("unit"))
 
 # DROP iters
 stock <- slim(swom$stock)
+
+# DROP age 0
+stock <- stock[-1,]
 
 # SR
 sr <- swom$sr
@@ -38,8 +41,8 @@ save(om, file="out/om.RData", compress="xz")
 
 # SMALL
 
-om <- FLom(stock=iter(stock, 1:100), sr=iter(swom$sr, 1:100),
-  refpts=iter(swom$refpts, 1:100))
+om <- FLom(stock=iter(stock, 1:50), sr=iter(swom$sr, 1:50),
+  refpts=iter(swom$refpts, 1:50))
 
 save(om, file="out/omsmall.RData", compress="xz")
 

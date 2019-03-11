@@ -10,13 +10,16 @@
 library(mse)
 library(FLasher)
 
-load("out/1unit/omsmall.RData")
 
 years <- 2016:2047
+years <- 2015
+
+load("out/omsmall.RData")
 
 # fwd F0
 proj_f0 <- window(fwd(om, control=fwdControl(year=years, quant="f",
-  value=1e-12), deviances=FLQuant(1, dimnames=list(year=years, unit=c('F', 'M'), iter=1:100))),
+  value=1e-12),
+  deviances=FLQuant(1, dimnames=list(year=years, unit=c('F', 'M'), iter=1:100))),
   start=years[1]-1, end=years[length(years)])
 
 # fwd FMSY
