@@ -30,4 +30,3 @@ swom <- loadOMS(subdirs=file.path(dir, grid$id[results$sample]),
 range(swom$stock, c("minfbar", "maxfbar")) <- c(2,8)
 
 save(swom, file="out/oms.RData", compress="xz")
-
