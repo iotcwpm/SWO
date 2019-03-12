@@ -13,10 +13,6 @@ library(FLBRP)
 load("out/oms.RData")
 load('out/metrics_sub.RData')
 
-
-# MERGE units
-# stock <- simplify(swom$stock, c("unit"))
-
 # DROP iters
 stock <- slim(swom$stock)
 
@@ -44,6 +40,12 @@ indices <- swom$indices
 names(indices) <- c("UJPLL_NW", "UJPLL_NE", "UJPLL_SW", "UJPLL_SE", "UTWLL_NW", "UTWLL_NE",
   "UTWLL_SW", "UTWLL_SE", "UPOR_SW")
 
+# DROP age 0
+indices <- lapply(indices, function(x) {
+    sel.pattern(x) <- sel.pattern(x)[-1,]
+    return(x)
+  })
+
 idx <- results[sample == TRUE, cpue]
 
 # SE
@@ -60,6 +62,9 @@ name(cpuene) <- "LL_NE"
 cpuenw <- indices[["UJPLL_NW"]]
 iter(cpuenw, idx == "twnpt") <- iter(indices[["UTWLL_NW"]], idx == "twnpt")
 name(cpuenw) <- "LL_NW"
+
+# SW
+
 
 cpues <- FLIndices(LL_NW=cpuenw, LL_NE=cpuene, LL_SE=cpuese)
 
