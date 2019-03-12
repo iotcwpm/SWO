@@ -11,6 +11,8 @@ library(mse)
 library(FLBRP)
 
 load("out/oms.RData")
+load('out/metrics_sub.RData')
+
 
 # MERGE units
 # stock <- simplify(swom$stock, c("unit"))
@@ -37,13 +39,37 @@ stock <- fwdWindow(stock, brps, end=2047)
 # CREATE FLom
 om <- FLom(stock=stock, sr=swom$sr, refpts=swom$refpts)
 
-save(om, file="out/om.RData", compress="xz")
+# --- CPUEs
+indices <- swom$indices
+names(indices) <- c("UJPLL_NW", "UJPLL_NE", "UJPLL_SW", "UJPLL_SE", "UTWLL_NW", "UTWLL_NE",
+  "UTWLL_SW", "UTWLL_SE", "UPOR_SW")
+
+idx <- results[sample == TRUE, cpue]
+
+# SE
+cpuese <- indices[["UJPLL_SE"]]
+iter(cpuese, idx == "twnpt") <- iter(indices[["UTWLL_SE"]], idx == "twnpt")
+name(cpuese) <- "LL_SE"
+
+# NE
+cpuene <- indices[["UJPLL_NE"]]
+iter(cpuene, idx == "twnpt") <- iter(indices[["UTWLL_NE"]], idx == "twnpt")
+name(cpuene) <- "LL_NE"
+
+# NW
+cpuenw <- indices[["UJPLL_NW"]]
+iter(cpuenw, idx == "twnpt") <- iter(indices[["UTWLL_NW"]], idx == "twnpt")
+name(cpuenw) <- "LL_NW"
+
+cpues <- FLIndices(LL_NW=cpuenw, LL_NE=cpuene, LL_SE=cpuese)
+
+save(om, cpues, file="out/om.RData", compress="xz")
 
 # SMALL
 
-om <- FLom(stock=iter(stock, 1:50), sr=iter(swom$sr, 1:50),
-  refpts=iter(swom$refpts, 1:50))
+om <- FLom(stock=iter(stock(om), 1:50), sr=iter(sr(om), 1:50),
+  refpts=iter(refpts(om), 1:50))
 
-save(om, file="out/omsmall.RData", compress="xz")
+cpues <- lapply(cpues, iter, 1:50)
 
-
+save(om, cpues, file="out/omsmall.RData", compress="xz")
