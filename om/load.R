@@ -31,4 +31,3 @@ range(swom$stock, c("minfbar", "maxfbar")) <- c(2,8)
 
 save(swom, file="out/oms.RData", compress="xz")
 
-
