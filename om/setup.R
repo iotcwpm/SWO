@@ -41,10 +41,7 @@ names(indices) <- c("UJPLL_NW", "UJPLL_NE", "UJPLL_SW", "UJPLL_SE", "UTWLL_NW", 
   "UTWLL_SW", "UTWLL_SE", "UPOR_SW")
 
 # DROP age 0
-indices <- lapply(indices, function(x) {
-    sel.pattern(x) <- sel.pattern(x)[-1,]
-    return(x)
-  })
+indices <- lapply(indices, "[", -1)
 
 idx <- results[sample == TRUE, cpue]
 
