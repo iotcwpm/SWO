@@ -12,33 +12,27 @@ library(FLasher)
 
 years <- 2016:2047
 
-load("out/omsmall.RData")
+load("data/omsmall.RData")
 
 # fwd F0
-proj_f0 <- window(fwd(stock(om), sr=sr(om),, control=fwdControl(year=years, quant="f",
-  value=1e-12)), start=years[1]-1, end=years[length(years)])
+proj_f0 <- fwd(stock(om), sr=sr(om),
+  control=fwdControl(year=years, quant="f", value=1e-12))
 
 # fwd FMSY
-proj_fmsy <- window(fwd(om, control=fwdControl(year=years, quant="f",
-  value=rep(c(refpts(om)$FMSY), each=length(years)))),
-  start=years[1]-1, end=years[length(years)])
+proj_fmsy <- fwd(stock(om), sr=sr(om), control=fwdControl(year=years, quant="f",
+  value=rep(c(refpts(om)$FMSY), each=length(years))))
 
 # fwd C2015
-proj_c2015 <- window(fwd(om, control=fwdControl(year=years, quant="catch",
-  value=rep(c(catch(stock(om))[,'2015']), each=length(years)))),
-  start=years[1]-1, end=years[length(years)])
+proj_c2015 <- fwd(stock(om), sr=sr(om), control=fwdControl(year=years, quant="catch",
+  value=rep(c(unitSums(catch(stock(om))[,'2015'])), each=length(years))))
 
 # fwd F2015
-proj_f2015 <- window(fwd(om, control=fwdControl(year=years, quant="f",
-  value=rep(c(fbar(stock(om))[,'2015']), each=length(years)))),
-  start=years[1]-1, end=years[length(years)])
+proj_f2015 <- fwd(stock(om), sr=sr(om), control=fwdControl(year=years, quant="f",
+  value=rep(c(unitMeans(fbar(stock(om))[,'2015'])), each=length(years))))
 
-runs <- FLStocks(f0=stock(proj_f0), fmsy=stock(proj_fmsy), c2015=stock(proj_c2015),
-  f2015=stock(proj_f2015), om=stock(om))
+runs <- FLStocks(c(lapply(list(f0=proj_f0, fmsy=proj_fmsy, c2015=proj_c2015,
+  f2015=proj_f2015), window, start=2015), list(om=window(stock(om), end=2015))))
 
-plot(runs)
+plot(runs) + facet_grid(qname~unit, scales="free_y")
 
-
-# ADD future deviances
-residuals(sr) <- deviances
-
+save(runs, file="out/runs.RData", compress="xz")

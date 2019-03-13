@@ -19,7 +19,7 @@ library(dplyr)
 library(grid)
 
 
-load("om/out/metrics.RData")
+load("out/metrics.RData")
 head(results)
 
 # SUBSET by converge level
@@ -155,5 +155,5 @@ om_subset <- unlist(lapply(1:5, function(x) sample(results[cl==x]$iter,100,repla
 #setting sample column in results dataframe
 results[,sample:=results$iter%in%om_subset]
 
-save(results, grid, metrics, residuals, file="om/out/metrics_sub.RData", compress="xz")
+save(results, grid, metrics, residuals, file="out/metrics.RData", compress="xz")
 
