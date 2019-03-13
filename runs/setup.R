@@ -9,62 +9,69 @@
 # XX {{{
 # }}}
 
+library(mse)
+
+load("om/out/omsmall.RData")
+load("om/out/metrics_sub.RData")
+
 # SR DEVIANCES
 
+resd <- c(sqrt(yearVars(sr(om)@residuals)))
+rerho <- c(apply(sr(om)@residuals[,ac(1950:2013)], c(1,3:6), function(x) acf(x, plot=FALSE)$acf[2]))
+
+sres <- FLQuant(0, dimnames=dimnames(window(stock(om), start=2014)))
+for(i in seq(dim(sres)[6]))
+  sres[,,,,,i] <- rlnoise(1, sres[,,,,,i], sd=resd[1], b=rerho[i])
+sr(om)@.Data[[1]] <- sres
 
 # INDEX
 
-cpue <- indices[[3]]
-
-sel.pattern <- unitMeans(sel.pattern(cpue))[-1,,,3]
-dimnames(sel.pattern) <- list(age=1:14)
-
-cpue <- FLIndexBiomass(name=name(cpue), desc="IO ALB LLCPUE3",
-  index=index(cpue)[,,,3],
-  index.var=index.var(cpue)[,,,3],
-  index.q=index.q(cpue)[,,,3],
-  sel.pattern=sel.pattern)
-range(cpue, c("startf", "endf")) <- c(0.5, 0.5)
+cpue <- cpues[["LL_NE"]]
 
 # EXTEND cpue
 
-cpue <- window(cpue, end=2047)
+cpue <- window(cpue,  end=2047)
 
 # sel.pattern
-sel.pattern(cpue)[, ac(2015:2047)] <- sel.pattern(cpue)[,'2014']
+sel.pattern(cpue)[, ac(2016:2047)] <- sel.pattern(cpue)[,'2015']
 
 # REGENERATE q
-vbiom <- quantSums(stock.n(stock)[,ac(1979:2017)] *
-  exp(-harvest(stock)[,ac(1979:2017)] * 0.5 - m(stock)[,ac(1979:2017)] * 0.5) *
-  stock.wt(stock)[,ac(1979:2017)] *
-  sel.pattern(cpue)[,ac(1979:2017)])
+vbiom <- quantSums(stock.n(stock(om))[,ac(1994:2015)] *
+  exp(-harvest(stock(om))[,ac(1994:2015)] * 0.5 - m(stock(om))[,ac(1994:2015)] * 0.5) *
+  stock.wt(stock(om))[,ac(1994:2015)] *
+  sel.pattern(cpue)[,ac(1994:2015)])
 
-index.q(cpue)[, ac(1979:2014)] <- yearMeans(index(cpue)[, ac(1979:2014)] / vbiom [, ac(1979:2014)])
+index.q(cpue)[, ac(1994:2015)] <- yearMeans(index(cpue)[, ac(1994:2015)] / unitSums(vbiom [, ac(1994:2015)]))
 
 # EXTEND to 2047
-index.q(cpue)[, ac(2015:2047)] <- index.q(cpue)[,'2014']
+index.q(cpue)[, ac(2016:2047)] <- index.q(cpue)[,'2015']
 
 # RECREATE index 2015-2017
-index(cpue)[, ac(2015:2017)] <- index.q(cpue)[, ac(2015:2017)] * vbiom[, ac(2015:2017)]
+# index(cpue)[, ac(2015:2017)] <- index.q(cpue)[, ac(2015:2017)] * vbiom[, ac(2015:2017)]
 
 # index.var
-index.var(cpue)[, ac(2017:2047)] <- index.var(cpue)[,'2014']
+index.var(cpue)[, ac(2016:2047)] <- index.var(cpue)[,'2014']
 
 # SET FUTURE qs
 
-loq <- log(index(cpue)[,ac(1979:2017)] / vbiom)
+loq <- log(index(cpue)[,ac(1994:2015)] / unitSums(vbiom))
 qmu <- yearMeans(loq)
 qsig <- sqrt(yearVars(loq))
 
 # FUTURE qs
 set.seed(2981)
 
-deviances.q <- rlnorm(1, expand(qmu, year=2018:2047), expand(qsig, year=2018:2047))
+deviances.q <- rlnorm(1, expand(qmu, year=2016:2047), expand(qsig, year=2016:2047))
 
 
 # llq = 1.0025
-for(i in 2019:2047)
-  deviances.q[,ac(i),,,,results$llq =="1.0025"]  <- deviances.q[,ac(i-1),,,,results$llq =="1.0025"] * 1.1
+idx<- results[sample==TRUE,]
+idx <- idx[1:50,]
+
+for(i in 2016:2047){
+  deviances.q[,ac(i),,,,idx$llq =="1.01"]  <- deviances.q[,ac(i),,,,idx$llq =="1.01"] * 1.1
+}
+
 
 
 
