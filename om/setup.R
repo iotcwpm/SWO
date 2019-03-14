@@ -11,13 +11,13 @@ library(mse)
 library(FLBRP)
 
 load("out/oms.RData")
-load('out/metrics_sub.RData')
+load('out/metrics.RData')
 
 # DROP iters
 stock <- slim(swom$stock)
 
 # DROP age 0
-stock <- stock[-1,]
+# stock <- stock[-1,]
 
 # SR
 sr <- swom$sr
@@ -34,6 +34,11 @@ stock <- fwdWindow(stock, brps, end=2047)
 
 # CREATE FLom
 om <- FLom(stock=stock, sr=swom$sr, refpts=swom$refpts)
+
+# BUG harvest(stock(om)) < 0
+harvest(stock(om))[harvest(stock(om)) < 0] <- 0
+discards.n(stock(om))[, ac(2016:2047)] <- discards.n(stock(om))[, ac(2015)]
+landings.n(stock(om))[, ac(2016:2047)] <- landings.n(stock(om))[, ac(2015)]
 
 # --- CPUEs
 indices <- swom$indices
