@@ -30,23 +30,20 @@ srpars <- do.call('FLPar', abPars("bevholt", spr0=c(params(sr)$v/params(sr)$R0),
 brps <- FLBRP(stock, list(model="bevholt", params=srpars), fbar=seq(0, 2, length=101))
 
 # EXTEND to endyear
-stock <- fwdWindow(stock, brps, end=2047)
+stock <- fwdWindow(stock, brps, end=2040)
+
+# BUG harvest(stock(om)) < 0
+harvest(stock)[harvest(stock) < 0] <- 0
+discards.n(stock)[, ac(2016:2040)] <- discards.n(stock)[, ac(2015)]
+landings.n(stock)[, ac(2016:2040)] <- landings.n(stock)[, ac(2015)]
 
 # CREATE FLom
 om <- FLom(stock=stock, sr=swom$sr, refpts=swom$refpts)
-
-# BUG harvest(stock(om)) < 0
-harvest(stock(om))[harvest(stock(om)) < 0] <- 0
-discards.n(stock(om))[, ac(2016:2047)] <- discards.n(stock(om))[, ac(2015)]
-landings.n(stock(om))[, ac(2016:2047)] <- landings.n(stock(om))[, ac(2015)]
 
 # --- CPUEs
 indices <- swom$indices
 names(indices) <- c("UJPLL_NW", "UJPLL_NE", "UJPLL_SW", "UJPLL_SE", "UTWLL_NW", "UTWLL_NE",
   "UTWLL_SW", "UTWLL_SE", "UPOR_SW")
-
-# DROP age 0
-indices <- lapply(indices, "[", -1)
 
 idx <- results[sample == TRUE, cpue]
 
