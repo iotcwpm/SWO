@@ -10,11 +10,12 @@
 library(mse)
 
 # LOAD data
-load("data/omsmall.RData")
+load("data/omsmallp.RData")
 
 # ARGS
-years <- 2015:2047
-pyears <- 2016:2047
+years <- 2015:2036
+pyears <- 2016:2036
+
 mpargs <- list(it=dims(stock(om))$iter, fy=years[length(years)], y0=1950, dy=years[1],
   iy=years[1], ny=length(years), nsqy=3, vy=ac(years))
 
@@ -37,22 +38,47 @@ control <- mpCtrl(list(
   # IND
   ctrl.est = mseCtrl(method=cpue.ind, args=list(nyears=5))))
 
-
-oem <- FLoem(method=cpue.oem,
-  observations=list(stk=stock(om), idx=FLIndices(LL_NE=cpue)),
-  deviances=list(idx=deviances.q))
-
 # TEST
 
 run <- mp(om=om, oem=oem, ctrl.mp=control, genArgs=mpargs,
    tracking=c("cpue.mean", "cpue.slope"))
 
 # TUNE
-range <- round(c(0.01, 5) * mean(index(cpue)[, ac(1994:2000)]), digits=2)
+range <- round(c(0.2, 2) * mean(index(cpue)[, ac(1994:2000)]), digits=2)
+
+
+# TUNE P(SB >= SB_MSY) = 0.5
 
 cpta1 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
   tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
   indicator=indicators["S8"], metrics=list(SB=function(x) ssb(x)[,,'F']),
   tol=0.01, prob=0.5, pyears=list(pyears))
 
+cpta1b <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S8"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  tol=0.01, prob=0.5, pyears=list(2026:2036))
 
+# TUNE P(Green) = 0.5
+
+cpta2 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  tol=0.01, prob=0.5, pyears=list(pyears))
+
+# TUNE P(Green) = 0.6
+
+cpta3 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  tol=0.01, prob=0.6, pyears=list(pyears))
+
+# TUNE P(Green) = 0.7
+
+cpta4 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  tol=0.01, prob=0.7, pyears=list(pyears))
+
+
+save(cpta1, cpta1b, cpta2, cpta3, cpta4, file="out/cpuetune.RData")

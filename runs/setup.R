@@ -69,10 +69,9 @@ qsig <- sqrt(yearVars(loq))
 
 deviances.q <- rlnorm(1, expand(qmu, year=2016:2047), expand(qsig, year=2016:2047))
 
-
 # OEM
 oem <- FLoem(method=cpue.oem,
   observations=list(stk=stock(om), idx=FLIndices(LL_NE=cpue)),
   deviances=list(idx=deviances.q))
 
-
+save(om, cpue, oem, file="data/omsmallp.RData")
