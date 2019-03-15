@@ -44,7 +44,7 @@ run <- mp(om=om, oem=oem, ctrl.mp=control, genArgs=mpargs,
    tracking=c("cpue.mean", "cpue.slope"))
 
 # TUNE
-range <- round(c(0.2, 2) * mean(index(cpue)[, ac(1994:2000)]), digits=2)
+range <- round(c(0.2, 3) * mean(index(cpue)[, ac(1994:2000)]), digits=2)
 
 
 # TUNE P(SB >= SB_MSY) = 0.5
@@ -63,22 +63,43 @@ cpta1b <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
 
 cpta2 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
   tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
-  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
   tol=0.01, prob=0.5, pyears=list(pyears))
+
+cpta2b <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
+  tol=0.01, prob=0.5, pyears=list(2026:2036))
 
 # TUNE P(Green) = 0.6
 
 cpta3 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
   tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
-  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
   tol=0.01, prob=0.6, pyears=list(pyears))
+
+cpta3b <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
+  tol=0.01, prob=0.6, pyears=list(2026:2036))
 
 # TUNE P(Green) = 0.7
 
 cpta4 <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
   tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
-  indicator=indicators["S6"], metrics=list(SB=function(x) ssb(x)[,,'F']),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
   tol=0.01, prob=0.7, pyears=list(pyears))
 
+cpta4b <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
+  tracking=c("cpue.mean", "cpue.slope"), tune=list(target=range),
+  indicator=indicators["S6"],
+  metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
+  tol=0.01, prob=0.7, pyears=list(2026:2036))
 
-save(cpta1, cpta1b, cpta2, cpta3, cpta4, file="out/cpuetune.RData")
+save(cpta1, cpta2, cpta3, cpta4, file="out/cpuetune.RData", compress="xz")
+save(cpta1b, cpta2b, cpta3b, cpta4b, file="out/cpuebtune.RData", compress="xz")

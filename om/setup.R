@@ -16,9 +16,6 @@ load('out/metrics.RData')
 # DROP iters
 stock <- slim(swom$stock)
 
-# DROP age 0
-# stock <- stock[-1,]
-
 # SR
 sr <- swom$sr
 
