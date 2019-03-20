@@ -20,12 +20,18 @@ load("data/omsmall.RData")
 load("out/bd4010tune.RData")
 load("out/cpuetune.RData")
 
+load("out/bd4010btune.RData")
+load("out/cpuebtune.RData")
+
 data(iotcindicators)
 
 # Tuned MPs
 
 tuns <- list(bdta1=bdta1, bdta2=bdta2, bdta3=bdta3, bdta4=bdta4,
   cpta1=cpta1, cpta2=cpta2, cpta3=cpta3, cpta4=cpta4)
+
+tunsb <- list(bdta1b=bdta1b, bdta2b=bdta2b, bdta3b=bdta3b, bdta4b=bdta4b,
+             cpta1b=cpta1b, cpta2b=cpta2b, cpta3b=cpta3b, cpta4b=cpta4b)
 
 pyears <- seq(2016, 2036)
 
@@ -48,6 +54,11 @@ perf <- rbindlist(lapply(tuns,
       metrics=mets)
   }), idcol="mp")
 
+perfb <- rbindlist(lapply(tunsb,
+  function(x) {
+    performance(stock(x), refpts=refpts, indicators=indicators, years=list(pyears),
+      metrics=mets)
+  }), idcol="mp")
 
 # KOBE performance time series
 
@@ -60,14 +71,33 @@ perfkobe <- rbindlist(lapply(tuns,
 perfkobe <- perfkobe[, .(data=sum(data) / length(data)), by=.(mp, year, indicator, name)]
 perfkobe[, indicator:=factor(indicator, levels=c("green", "orange", "yellow", "red"))]
 
+
+
+perfkobeb <- rbindlist(lapply(tunsb,
+  function(x) {
+    performance(stock(x), refpts=refpts, indicators=kobeindicators, years=pyears,
+      metrics=mets)
+  }), idcol="mp")
+
+perfkobeb <- perfkobeb[, .(data=sum(data) / length(data)), by=.(mp, year, indicator, name)]
+perfkobeb[, indicator:=factor(indicator, levels=c("green", "orange", "yellow", "red"))]
+
 # PERFORMANCE ts for long table
 
 perfts <- rbindlist(lapply(tuns,
   function(x) {
     performance(stock(x), refpts=refpts, indicators=indicators,
-      years=mapply(seq, from=2019, length.out=c(5,10,20)),
+      years=mapply(seq, from=min(pyears)+1, length.out=c(5,10,20)),
       metrics=mets)
   }), idcol="mp")
+
+perftsb <- rbindlist(lapply(tunsb,
+  function(x) {
+    performance(stock(x), refpts=refpts, indicators=indicators,
+       years=mapply(seq, from=min(pyears)+1, length.out=c(5,10,20)),
+       metrics=mets)
+  }), idcol="mp")
+
 
 # EXTRACT metrics from tuns and om
 
@@ -76,7 +106,9 @@ mets <- c(mets, SBMSY = function(x) unitSums(ssb(x)) / refpts$SBMSY,
 
 tuns <- lapply(tuns, function(x) metrics(stock(x), metrics=mets))
 
+tunsb <- lapply(tunsb, function(x) metrics(stock(x), metrics=mets))
+
 omm <- metrics(window(stock(om), end=2017), metrics=mets) 
 
 
-save(omm, tuns, perf, perfkobe, perfts, file="out/perf_tune.RData", compress="xz")
+save(omm, tuns, perf, perfkobe, perfts, tunsb, perfb, perfkobeb, perftsb, file="out/perf_tune.RData", compress="xz")
