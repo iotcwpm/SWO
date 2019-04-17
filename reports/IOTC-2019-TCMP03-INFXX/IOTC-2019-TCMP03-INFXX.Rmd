@@ -1,0 +1,87 @@
+---
+title: Indian Ocean Swordfish Management Procedure - Status Report. ^[Daniela Rosa. Instituto Português do Mar e da Atmosfera (IPMA), Av. 5 de Outubro, 8700-305 Olhão, Portugal.\ 
+  Iago Mosqueira. European Commission, DG Joint Research Centre (JRC), Directorate D - Sustainable Resources, Unit D.02 Water and Marine Resources, Via  E. Fermi 2749, 21027 Ispra VA, Italy. iago.mosqueira@ec.europa.eu.\ 
+  Dan Fu. Indian Ocean Tuna Commission Secretariat, Le Chantier Mall (2nd floor), PO Box 1011, Victoria Mahé, Seychelles.\ 
+  Rui Coelho. Instituto Português do Mar e da Atmosfera (IPMA), Av. 5 de Outubro, 8700-305 Olhão, Portugal.]
+date: "IOTC-2019-TCMP03-INFXX"
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: no
+    toc: no
+  word_document:
+    toc: no
+fontfamily: libertine
+header-includes:
+- \usepackage{float}
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \fancyhead{}
+- \fancyhead[L]{}
+- \fancyhead[R]{IOTC-2019-TCMP03-INFXX}
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+subtitle: IOTC Technical Committee on Management Procedures – 14-15 June 2019
+tags: IOTC SWO OM MSE
+---
+
+```{r, knitr, echo=FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE,
+  dev="pdf", out.width = "50%", fig.pos="htbp", fig.align="center")
+opts_knit$set(root.dir = "/home/daniela/SWO/")
+```
+
+```{r, packages}
+library(ggplot2)
+library(data.table)
+library(gridExtra)
+library(ioswomse)
+```
+
+```{r, data}
+load("om/out/sa.RData")
+name(sa) <- "SA"
+range(sa, c("minfbar", "maxfbar")) <- c(2,8)
+
+load("om/out/om.RData")
+name(stock(om)) <- "OM"
+```
+
+# Summary of MSE work status
+
+*The base case Operating Model (OM) for swordfish is being developed by the Working Party on Methods (WPM) 
+with input from the Working Party on Billfish (WPB). The current OM has yet to be finalized and to be fully reviewed by either WP.
+
+*Further developments on the swordfish MSE inlcudes an evaluation of Management Procedures (MPs). 
+The analysis will attempt to simulation-test a full MP, consisting on data collection, an agreed evaluation of stock status, and a decision rule.
+
+*Evaluation on MPs is an iterative process, where a main feedback priority for the TCMP-03 is to provide 
+management objectives and MP tuning targets for Indian Ocean swordfish.
+
+# Current Operating Model development
+
+The OM being developed here is based of the population and fishery models used for the assessment of the stock status of Indian Ocean swordfish, presented at the 2017 session of the Working Party on Billfish (WPB). The stock assessment explored the uncertainty with respect to various structural uncertainty assumptions and all of these elements have been incorporated in the current OM. The time series plot of the operating model shows values for recruitment and abundance to be widely distributed around the assessment estimate (Figure \ref{fig:plotom}). The estimated fishing mortality of the assessment is on the lower tail of the distribution of fishing mortalities estimated by the OM (Figure \ref{fig:plotom}). However, it should be noted that the represented assessment is only one model run from the grid used for management advice.
+
+
+```{r plotom, out.width = "80%",fig.cap="Population trajectories (recruitment, SSB, catch and F) estimated by the operating model grid (in red) and one (from a grid of 24 models) stock assessment model run (in blue) for Indian Ocean swordfish for male and female. For the OM, the red line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+
+plot(sa,stock(om)[,ac(1950:2015)])+facet_grid(qname~unit, scales="free_y")+theme_bw()
+```
+
+# Feedback Requests for the TCMP
+
+The tuning objective refers to a key management objective that the MPs can achieve precisely (e.g. achieving
+SB $\geq$ SB(MSY) with a 50% probability by 2024). The tuning objective normally relates to a desirable biomass (in
+terms of the risk of exceeding reference points and/or a rebuilding timeframe), and has a very strong influence on
+the obtainable yield (because biomass risk and attainable catch are closely related). Tuning ensures that candidate
+MPs are identical with respect to this high priority objective, making it easier to select among MPs on the basis of
+performance with respect to secondary management objectives (e.g. yield and catch stability). Ideally the Commission
+will have narrowed down the tuning objectives to 1 or 2 before selection.
+
+The TCMP02 (2018) defined 5 interim tuning objectives for exploration for bigeye tuna, three of these objectives are to be tunned for the period 2030:2034. This period was defined, instead of the 20 years projection period, as the current state of bigeye tuna is well above SB(MSY) the tuning objectives defined in TCMP01 (2017) required depleting the stock to well below SB(MSY) by the end of the projection period. Given that the current state of swordfish stock is also above SB(MSY) it is proposed that the same tuning objectives are used:
+
+* TB1: Pr(mean(SB(2019:2038))>=SB(MSY) ) = 0.5. Average Spawning biomass (SB) over the period 2019-2038 exceeds SB MSY in exactly 50% of the simulations).
+* TB2: Pr(Kobe green zone 2030:2034) = 0.5. The stock status is in the Kobe green quadrant over the
+period 2030-2034 exactly 50% of the time (averaged over all simulations).
+* TB3: Pr(Kobe green zone 2030:2034) = 0.6. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 60% of the time (averaged over all simulations).
+* TB4: Pr(Kobe green zone 2030:2034) = 0.7. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 70% of the time (averaged over all simulations)
