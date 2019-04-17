@@ -17,7 +17,7 @@ library(ss3om)
 
 # setwd("C:/Users/USER/Desktop/SWO-MSE/Git-SWO/SWO/om")
 
-load("om/out/metrics2.RData")
+load("om/out/metrics.RData")
 
 SB0_low <- 159445 
 SB0_high <- 277605
@@ -196,31 +196,38 @@ CPUE_plot <- plot(residuals$indices)
 
 ###PLOTTING OM
 
-metrics$F <- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
+metrics$F<- areaSums(metrics$F * metrics$B) / areaSums(metrics$B)
 metrics$REC <- areaSums(metrics$REC)
 metrics$SSB <- areaSums(metrics$SSB)
 metrics$C <- areaSums(metrics$C)
 
 
-OM_plot <- plot(metrics[1:4])+geom_line(col="black")+facet_grid(qname~unit, scales="free_y")
+OM_plot <- plot(metrics[1:4])+geom_line(col="black")+ facet_grid(qname~unit, scales="free_y")
 
 #PLOT SA
-sa <- readFLSss3("ioswomse/data-raw/sa", repfile="Report.sso.gz", covarfile="covar.sso.gz",
-                 compfile="CompReport.sso.gz")
-catch.sa <- areaSums(catch(sa))
-sa <- simplify(sa, c("area"))
-catch(sa) <- catch.sa
+load("sa.RData")
+name(sa) <- "SA"
+range(sa, c("minfbar", "maxfbar")) <- c(2,8)
 plot(sa)+facet_grid(qname~unit, scales="free_y")
 
 
+## PLOT OM+SA
+load("om.RData")
+name(stock(om)) <- "OM"
+
+plot(sa,stock(om)[,ac(1950:2015)])+facet_grid(qname~unit, scales="free_y")+theme_bw()
 
 ### INSPECTING SUBSET OF RUNS RELATIVE TO ALL OM
+
+# pdf(file="SUBSETvsOM.pdf")
 
 res_sample <- rbind(results, results[results$sample==T,])
 res_sample [, subset:=c(rep("Total",dim(results)[1]),rep("Subset",dim(results[results$sample==T,])[1]))]
 
 
 # SSB_Virgin vs SSB_endyr/SSB_Virgin
+# tiff(file="SB0_SB15_SB0.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
 ggplot(res_sample, aes(SSB_Virgin,SSB15SSB0)) + 
   geom_point(col="darkblue")+
   facet_grid(~subset)+
@@ -228,9 +235,12 @@ ggplot(res_sample, aes(SSB_Virgin,SSB15SSB0)) +
   ylab("SBcurrent/SB0")+
   theme_bw()+
   theme(legend.position="none")
+#dev.off()
+
 
 # dist(SSB_Virgin)
-
+# tiff(file="SB0_dist.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
 ggplot(res_sample, aes(SSB_Virgin)) + geom_density(fill="grey90")+
   geom_vline(xintercept=SB0_low, colour='red') +
   geom_vline(xintercept=SB0_high, colour='red') +
@@ -238,23 +248,30 @@ ggplot(res_sample, aes(SSB_Virgin)) + geom_density(fill="grey90")+
   xlab("SB0")+
   ylab("Density")+
   theme_bw()
+#dev.off()
 
 # dist(SSB_endyr/SSB_Virgin)
 
+# tiff(file="dist_SB15_SB0.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
 ggplot(res_sample, aes(x=SSB15SSB0)) +
   geom_density(fill="grey90")+
   facet_grid(~subset)+
   xlab("SBcurrent/SB0")+
   ylab("Density")+
   theme_bw()
+#dev.off()
 
 #dist(SSB_endyr/SSB_MSY)
+# tiff(file="dist_SB15_SBMSY.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
 ggplot(res_sample, aes(x=SSB15SSBMSY)) +
   geom_density(fill="grey90")+
   facet_grid(~subset)+
   xlab("SBcurrent/SBMSY")+
   ylab("Density")+
   theme_bw()
+#dev.off()
 
 ###PLOT S-R residuals
 
@@ -292,6 +309,7 @@ grid.arrange(CPUE_plot, CPUE_plot2,ncol=2,nrow=1)
 grid.arrange(OM_plot, OM_plot2,ncol=2,nrow=1)
 #dev.off()
 
+
 ####IDENTIFYING DRIVERS FOR CLUSTERS
 
 tot <-lapply(c(1:5), function(x) lapply(results[cl==x,1:9],length)) 
@@ -306,14 +324,21 @@ final <- as.data.table(melt(final, id.vars="clst"))
 
 final$variable <- factor(final$variable,levels(final$variable)[c(1:6,15:20,7:14,21,22)])
 
+# tiff(file="Prop_byCluster.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
 ggplot(data=final,aes(variable, value))+
   geom_point()+
+  facet_grid(clst~.)+
   xlab("Levels")+
   ylab("Proportion")+
-  annotate("segment", x=0, xend = "catch", 0.33, yend = 0.33)+
-  annotate("segment", x="catch", xend = "Logistic", 0.5, yend = 0.5)+
-  facet_grid(clst~.)
+  annotate("segment", x=0, xend = "catch", 0.33, yend = 0.33,col="red")+
+  annotate("segment", x="catch", xend = "Logistic", 0.5, yend = 0.5, col="red")+
+  geom_vline(xintercept = c(3.5,6.5,9.5,12.5,14.5,16.5,18.5,20.5))+
+  theme_bw()
+#dev.off()
 
+#dev.off for overall pdf saving
+#dev.off()
 
 
 
