@@ -78,9 +78,9 @@ MPs are identical with respect to this high priority objective, making it easier
 performance with respect to secondary management objectives (e.g. yield and catch stability). Ideally the Commission
 will have narrowed down the tuning objectives to 1 or 2 before selection.
 
-The TCMP02 (2018) defined 5 interim tuning objectives for exploration for bigeye tuna, three of these objectives are to be tunned for the period 2030:2034. This period was defined, instead of the 20 years projection period, as the current state of bigeye tuna is well above SB(MSY) the tuning objectives defined in TCMP01 (2017) required depleting the stock to well below SB(MSY) by the end of the projection period. Given that the current state of swordfish stock is also above SB(MSY) it is proposed that the same tuning objectives are used:
+The TCMP02 (2018) defined 3 interim tuning objectives for exploration for bigeye tuna, these objectives are to be tunned for the period 2030:2034. This period was defined, instead of the 20 years projection period (2019:2038), as the current state of bigeye tuna is well above SB(MSY) the tuning objectives defined in TCMP01 (2017) required depleting the stock to well below SB(MSY) by the end of the projection period. Given that the current state of swordfish stock is also above SB(MSY), it is proposed that the following tuning objectives are used:
 
-* TB1: Pr(mean(SB(2019:2038))>=SB(MSY) ) = 0.5. Average Spawning biomass (SB) over the period 2019-2038 exceeds SB MSY in exactly 50% of the simulations).
+* TB1: Pr(mean(SB(2030:2034))>=SB(MSY)) = 0.5. Average Spawning biomass (SB) over the period 2030-2034 exceeds SB MSY in exactly 50% of the simulations).
 * TB2: Pr(Kobe green zone 2030:2034) = 0.5. The stock status is in the Kobe green quadrant over the
 period 2030-2034 exactly 50% of the time (averaged over all simulations).
 * TB3: Pr(Kobe green zone 2030:2034) = 0.6. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 60% of the time (averaged over all simulations).
