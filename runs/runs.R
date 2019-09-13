@@ -10,7 +10,7 @@
 library(mse)
 library(FLasher)
 
-load("data/omsmallp.RData")
+load("data/omp.RData")
 
 years <- 2016:2036
 
