@@ -9,7 +9,7 @@
 
 library(mse)
 
-load("data/omsmall.RData")
+load("data/om.RData")
 load("data/metrics.RData")
 
 set.seed(2981)
@@ -74,4 +74,4 @@ oem <- FLoem(method=cpue.oem,
   observations=list(stk=stock(om), idx=FLIndices(LL_NE=cpue)),
   deviances=list(idx=deviances.q))
 
-save(om, cpue, oem, file="data/omsmallp.RData")
+save(om, cpue, oem, file="data/omp.RData")
