@@ -321,25 +321,65 @@ final <- as.data.frame(do.call(rbind, lapply(fin, Reduce, f=c)))
 final$clst <- rownames(final)
 colnames(final)[c(1,4)] <- c("0.20","0.60")
 final <- as.data.table(melt(final, id.vars="clst"))
-
-final$variable <- factor(final$variable,levels(final$variable)[c(1:6,15:20,7:14,21,22)])
-
+final[,Factor:=rep(colnames(results)[1:9],c(15,15,10,10,10,10,15,15,10))]
+final[,Factor:= factor(Factor, levels=c("M", "steepness","scaling", "cpue",
+                                        "sigmaR","growmat","ess","llq","llsel"))]
+dummy <- data.frame(Factor = c("M", "steepness","scaling", "cpue",
+                          "sigmaR","growmat","ess","llq","llsel"), 
+                    Z = c(rep(c(0.33,0.5), c(4,5))))
 # tiff(file="Prop_byCluster.tiff", bg = "white", compression="lzw",width = 32,
 #      height = 20, units = "cm", res = 600)
 ggplot(data=final,aes(variable, value))+
   geom_point()+
-  facet_grid(clst~.)+
+  facet_grid(clst~Factor, scale="free")+
   xlab("Levels")+
   ylab("Proportion")+
-  annotate("segment", x=0, xend = "catch", 0.33, yend = 0.33,col="red")+
-  annotate("segment", x="catch", xend = "Logistic", 0.5, yend = 0.5, col="red")+
-  geom_vline(xintercept = c(3.5,6.5,9.5,12.5,14.5,16.5,18.5,20.5))+
+  ylim(c(0,1))+
+  geom_hline(data = dummy, aes(yintercept = Z),col="red")+
   theme_bw()
 #dev.off()
+
+# tiff(file="Factors_byCluster.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+ggplot(data=final,aes(variable, value, fill=Factor))+
+  geom_bar(stat = "identity", position="dodge")+
+  facet_grid(clst~Factor,scale="free")+
+  xlab("Levels")+
+  ylab("Proportion")+
+  ylim(c(0,1))+
+  theme_bw()+
+  theme(legend.position="none",
+        axis.text.x = element_text(angle = 90, hjust = 1))
 
 #dev.off for overall pdf saving
 #dev.off()
 
+
+#IDENTIFYING FACTORS AND FACTOR LEVELS IN THE SUBSETTED OM
+
+res_sub <- results[sample==T,]
+clres <- lapply(c(1:5), function(x) lapply(res_sub[cl==x,1:9],table))
+
+clres <- as.data.frame(do.call(rbind, lapply(clres, Reduce, f=c)))
+clres$clst <- rownames(clres)
+colnames(clres)[c(1,4)] <- c("0.20","0.60")
+clres <- as.data.table(melt(clres, id.vars="clst"))
+clres[,Factor:=rep(colnames(res_sub)[1:9],c(15,15,10,10,10,10,15,15,10))]
+clres[,Factor:= factor(Factor, levels=c("M", "steepness","scaling", "cpue",
+                                        "sigmaR","growmat","ess","llq","llsel"))]
+
+# tiff(file="Factors_byCluster.tiff", bg = "white", compression="lzw",width = 32,
+#      height = 20, units = "cm", res = 600)
+ggplot(data=clres,aes(variable, value, fill=Factor))+
+  stat_summary(fun.y = "sum", geom = "bar", position = "identity")+
+  facet_wrap(Factor~.,scale="free")+
+  xlab("Levels")+
+  ylab("Frequency")+
+  ylim(c(0,300))+
+  theme_bw()+
+  theme(legend.position="none",
+        axis.text.x = element_text(angle = 90, hjust = 1))
+#dev.off()
 
 
 #OTHER PLOTS

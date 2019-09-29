@@ -1,0 +1,22 @@
+#C data file created using the SS_writedat function in the R package r4ss
+#C should work with SS version: 3.24
+#C file write time: 2019-03-04 11:16:41
+#
+1950 #_styr
+2015 #_endyr
+1 #_nseas
+12 #_months_per_seas
+1 #_spawn_seas
+12 #_Nfleet
+20 #_Nsurveys
+4 #_N_areas
+GI_NE%LL_NE%GI_NW%LL_NW%GI_SE%LL_SE%ALGI_SW%EUEL_SW%ISEL_SW%JPLL_SW%TWFL_SW%TWLL_SW%UJPLL_NW%UJPLL_NE%UJPLL_SW%UJPLL_SE%UTWLL_NW%UTWLL_NE%UTWLL_SW%UTWLL_SE%UPOR_SW%UESP_SW%URELL_SW%UIND_NE%UJPLL_NW_pre%UJPLL_NE_pre%UJPLL_SW_pre%UJPLL_SE_pre%UTWLL_NW_pre%UTWLL_NE_pre%UTWLL_SW_pre%UTWLL_SE_pre #_fleetnames
+0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 #_surveytiming_in_season
+2 2 1 1 4 4 3 3 3 3 3 3 1 2 3 4 1 2 3 4 3 3 3 2 1 2 3 4 1 2 3 4 #_area_assignments_for_each_fishery_and_survey
+1 1 1 1 1 1 1 1 1 1 1 1 #_units of catch:  1=bio; 2=num
+0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 #_se of log(catch) only used for init_eq_catch and for Fmethod 2 and 3
+2 #_Ngenders
+30 #_Nages
+0 0 0 0 0 0 0 0 0 0 0 0 #_init_equil_catch_for_each_fishery
+66 #_N_lines_of_catch_to_read
+#_GI_NE	LL_NE	GI_NW	LL_NW	GI_SE	LL_SE	ALGI_SW	EUEL_SW	ISEL_SW	JPLL_SW	TWFL_SW	TWLL_SW	year	seas
