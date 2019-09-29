@@ -126,3 +126,4 @@ cpta4c <- tunebisect(om=om, oem=oem, control=control, mpargs=mpargs,
 
 save(cpta1, cpta2, cpta3, cpta4, file="out/cpuetune.RData", compress="xz")
 save(cpta1b, cpta2b, cpta3b, cpta4b, file="out/cpuebtune.RData", compress="xz")
+save(cpta2c, cpta3c, cpta4c, file="runs/out/cpuectune.RData", compress="xz")

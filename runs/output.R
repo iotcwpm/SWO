@@ -12,7 +12,7 @@ library(mseviz)
 
 # DATA
 
-load("out/perf_tune.RData")
+load("out/perf_tunec.RData")
 
 data(iotcindicators)
 
@@ -95,3 +95,45 @@ resTable(perftsb[year==2021], indicators)
 resTable(perftsb[year==2026], indicators)
 
 resTable(perftsb[year==2036], indicators)
+
+
+#Tunning for average over 2030:2034
+# pdf("runs/perfc_plots.pdf")
+
+# plotBPs
+
+plotBPs(perfc, indicators=c("S3", "S6", "F2", "Y1", "T1"),
+        target=list(S3=1), limit=c(S3=0.4))
+
+# plotTOs
+
+plotTOs(perfc, x="Y1", y=c("S3", "S6", "F2", "T2"))
+
+# kobeMPs
+
+kobeMPs(perfc)
+
+# kobeTS
+
+kobeTS(perfkobec)
+
+
+# plotOMruns
+
+plotOMruns(omm$FMSY, FLQuants(lapply(tunsc, "[[", "FMSY")), limit=1.4, target=1, ylim=c(0,1.5))
+
+plotOMruns(omm$SBMSY, FLQuants(lapply(tunsc, "[[", "SBMSY")), limit=0.4, target=1)
+
+
+# SUMMARY table
+
+summTable(perfc)
+
+# LONG table
+
+resTable(perftsc[year==2021], indicators)
+
+resTable(perftsc[year==2026], indicators)
+
+resTable(perftsc[year==2036], indicators)
+

@@ -13,7 +13,7 @@ library(ioswomse)
 
 # LOAD om
 
-load("data/omsmall.RData")
+load("data/om.RData")
 
 # LOAD tuning results
 
@@ -32,6 +32,9 @@ tuns <- list(bdta1=bdta1, bdta2=bdta2, bdta3=bdta3, bdta4=bdta4,
 
 tunsb <- list(bdta1b=bdta1b, bdta2b=bdta2b, bdta3b=bdta3b, bdta4b=bdta4b,
              cpta1b=cpta1b, cpta2b=cpta2b, cpta3b=cpta3b, cpta4b=cpta4b)
+
+tunsc <- list(bdta2c=bdta2c, bdta3c=bdta3c,
+              cpta2c=cpta2c, cpta3c=cpta3c, cpta4c=cpta4c)
 
 pyears <- seq(2016, 2036)
 
@@ -112,3 +115,45 @@ omm <- metrics(window(stock(om), end=2017), metrics=mets)
 
 
 save(omm, tuns, perf, perfkobe, perfts, tunsb, perfb, perfkobeb, perftsb, file="out/perf_tune.RData", compress="xz")
+
+
+
+# PERFORMANCE across tuned runs 2030:2034
+
+perfc <- rbindlist(lapply(tunsc,
+                          function(x) {
+                            performance(stock(x), refpts=refpts, indicators=indicators, years=list(pyears),
+                                        metrics=mets)
+                          }), idcol="mp")
+
+# KOBE performance time series
+perfkobec <- rbindlist(lapply(tunsc,
+                              function(x) {
+                                performance(stock(x), refpts=refpts, indicators=kobeindicators, years=pyears,
+                                            metrics=mets)
+                              }), idcol="mp")
+
+perfkobec <- perfkobec[, .(data=sum(data) / length(data)), by=.(mp, year, indicator, name)]
+perfkobec[, indicator:=factor(indicator, levels=c("green", "orange", "yellow", "red"))]
+
+# PERFORMANCE ts for long table
+
+perftsc <- rbindlist(lapply(tunsc,
+                            function(x) {
+                              performance(stock(x), refpts=refpts, indicators=indicators,
+                                          years=mapply(seq, from=min(pyears)+1, length.out=c(5,10,20)),
+                                          metrics=mets)
+                            }), idcol="mp")
+
+
+# EXTRACT metrics from tuns and om
+
+mets <- c(mets, SBMSY = function(x) unitSums(ssb(x)) / refpts$SBMSY,
+          FMSY = function(x) unitMeans(fbar(x)) / refpts$FMSY)
+
+tunsc <- lapply(tunsc, function(x) metrics(stock(x), metrics=mets))
+
+omm <- metrics(window(stock(om), end=2017), metrics=mets) 
+
+
+save(omm, tunsc, perfc, perfkobec, perftsc, file="out/perf_tunec.RData", compress="xz")

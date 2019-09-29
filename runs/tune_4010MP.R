@@ -108,9 +108,9 @@ bdta4b <- tunebisect(om, oem=oem, control, mpargs=mpargs,
 bdta4c <- tunebisect(om, oem=oem, control, mpargs=mpargs,
                     metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
                     indicator=indicators["S6"], pyears=list(2030:2034),
-                    tune=list(lambda=c(0.25, 1.50)), prob=0.7, tol=0.01, maxit=12)
+                    tune=list(lambda=c(-0.5, 1.5)), prob=0.7, tol=0.01, maxit=12)
 
 
 save(bdta1, bdta2, bdta3, bdta4, file="out/bd4010tune.RData", compress="xz")
 save(bdta1b, bdta2b, bdta3b, bdta4b, file="out/bd4010btune.RData", compress="xz")
-
+save(bdta2c, bdta3c, file="out/bd4010ctune.RData", compress="xz")
