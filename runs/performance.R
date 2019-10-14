@@ -23,6 +23,10 @@ load("out/cpuetune.RData")
 load("out/bd4010btune.RData")
 load("out/cpuebtune.RData")
 
+load("out/bd4010ctune.RData")
+load("out/cpuectune.RData")
+
+
 data(iotcindicators)
 
 # Tuned MPs
@@ -33,10 +37,10 @@ tuns <- list(bdta1=bdta1, bdta2=bdta2, bdta3=bdta3, bdta4=bdta4,
 tunsb <- list(bdta1b=bdta1b, bdta2b=bdta2b, bdta3b=bdta3b, bdta4b=bdta4b,
              cpta1b=cpta1b, cpta2b=cpta2b, cpta3b=cpta3b, cpta4b=cpta4b)
 
-tunsc <- list(bdta2c=bdta2c, bdta3c=bdta3c,
-              cpta2c=cpta2c, cpta3c=cpta3c, cpta4c=cpta4c)
+tunsc <- list(bds1=bdta2c, bds2=bdta3c, bds3=bdta4c,
+              cps1=cpta2c, cps2=cpta3c, cps3=cpta4c)
 
-pyears <- seq(2016, 2036)
+pyears <- seq(2016, 2035)
 
 # ADD derived refpts (Ftarget, SBlim)
 
@@ -141,7 +145,7 @@ perfkobec[, indicator:=factor(indicator, levels=c("green", "orange", "yellow", "
 perftsc <- rbindlist(lapply(tunsc,
                             function(x) {
                               performance(stock(x), refpts=refpts, indicators=indicators,
-                                          years=mapply(seq, from=min(pyears)+1, length.out=c(5,10,20)),
+                                          years=mapply(seq, from=min(pyears), length.out=c(5,10,20)),
                                           metrics=mets)
                             }), idcol="mp")
 
@@ -153,7 +157,7 @@ mets <- c(mets, SBMSY = function(x) unitSums(ssb(x)) / refpts$SBMSY,
 
 tunsc <- lapply(tunsc, function(x) metrics(stock(x), metrics=mets))
 
-omm <- metrics(window(stock(om), end=2017), metrics=mets) 
+omm <- metrics(window(stock(om), end=2016), metrics=mets) 
 
 
 save(omm, tunsc, perfc, perfkobec, perftsc, file="out/perf_tunec.RData", compress="xz")

@@ -34,9 +34,14 @@ indicators <- list(
 # CONTROL
 
 control <- mpCtrl(list(ctrl.hcr = mseCtrl(method=catchSSB.hcr,
+                                          args=list(dtarget=0.40, dlimit=0.20, lambda=1, MSY=refpts(om)$MSY, ssb_lag=1)),
+                       ctrl.est = mseCtrl(method=perfect.sa),
+                       ctrl.is=mseCtrl(method=deltac.is, args=list(dtaclow=0.85, dtacupp=1.15))))
+
+control2 <- mpCtrl(list(ctrl.hcr = mseCtrl(method=catchSSB.hcr,
     args=list(dtarget=0.40, dlimit=0.20, lambda=1, MSY=refpts(om)$MSY, ssb_lag=1)),
   ctrl.est = mseCtrl(method=perfect.sa),
-  ctrl.is=mseCtrl(method=deltac.is, args=list(dtaclow=0.85, dtacupp=1.15))))
+  ctrl.is=mseCtrl(method=deltac.is, args=list(dtaclow=0.80, dtacupp=1.20))))
 
 # TEST run
 
@@ -87,7 +92,7 @@ bdta3b <- tunebisect(om, oem=oem, control, mpargs=mpargs,
   indicator=indicators["S6"], pyears=list(2026:2036),
   tune=list(lambda=c(0.25, 1.50)), prob=0.6, tol=0.01, maxit=12)
 
-bdta3c <- tunebisect(om, oem=oem, control, mpargs=mpargs,
+bdta3c <- tunebisect(om, oem=oem, control2, mpargs=mpargs,
                      metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
                      indicator=indicators["S6"], pyears=list(2030:2034),
                      tune=list(lambda=c(0.25, 1.50)), prob=0.6, tol=0.01, maxit=12)
@@ -105,12 +110,12 @@ bdta4b <- tunebisect(om, oem=oem, control, mpargs=mpargs,
   indicator=indicators["S6"], pyears=list(2026:2036),
   tune=list(lambda=c(0.25, 1.50)), prob=0.7, tol=0.01, maxit=12)
 
-bdta4c <- tunebisect(om, oem=oem, control, mpargs=mpargs,
+bdta4c <- tunebisect(om, oem=oem, control2, mpargs=mpargs,
                     metrics=list(SB=function(x) ssb(x)[,,'F'], F=function(x) unitMeans(fbar(x))),
                     indicator=indicators["S6"], pyears=list(2030:2034),
-                    tune=list(lambda=c(-0.5, 1.5)), prob=0.7, tol=0.01, maxit=12)
+                    tune=list(lambda=c(0.25, 1.5)), prob=0.7, tol=0.01, maxit=12)
 
 
 save(bdta1, bdta2, bdta3, bdta4, file="out/bd4010tune.RData", compress="xz")
 save(bdta1b, bdta2b, bdta3b, bdta4b, file="out/bd4010btune.RData", compress="xz")
-save(bdta2c, bdta3c, file="out/bd4010ctune.RData", compress="xz")
+save(bdta2c, bdta3c, bdta4c,file="out/bd4010ctune.RData", compress="xz")

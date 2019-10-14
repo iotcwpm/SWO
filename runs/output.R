@@ -16,7 +16,7 @@ load("out/perf_tunec.RData")
 
 data(iotcindicators)
 
-#Tunning for average over the entire projection period
+###Tunning for average over the entire projection period
 
 # pdf("runs/perf_plots.pdf")
 # plotBPs
@@ -97,7 +97,7 @@ resTable(perftsb[year==2026], indicators)
 resTable(perftsb[year==2036], indicators)
 
 
-#Tunning for average over 2030:2034
+###Tunning for average over 2030:2034
 # pdf("runs/perfc_plots.pdf")
 
 # plotBPs
@@ -124,6 +124,7 @@ plotOMruns(omm$FMSY, FLQuants(lapply(tunsc, "[[", "FMSY")), limit=1.4, target=1,
 
 plotOMruns(omm$SBMSY, FLQuants(lapply(tunsc, "[[", "SBMSY")), limit=0.4, target=1)
 
+plotOMruns(omm$C, FLQuants(lapply(tunsc, "[[", "C")))
 
 # SUMMARY table
 
@@ -131,9 +132,9 @@ summTable(perfc)
 
 # LONG table
 
-resTable(perftsc[year==2021], indicators)
+resTable(perftsc[year==2020], indicators)
 
-resTable(perftsc[year==2026], indicators)
+resTable(perftsc[year==2025], indicators)
 
-resTable(perftsc[year==2036], indicators)
+resTable(perftsc[year==2035], indicators)
 
