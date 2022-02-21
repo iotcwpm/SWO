@@ -1,0 +1,40 @@
+---
+title: 
+author: Iago MOSQUEIRA (WMR) <iago.mosqueira@wur.nl>
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+documentclass: article
+header-includes: 
+  - \usepackage{float}
+  - \usepackage{lscape}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+tags:
+abstract:
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+---
+
+```{r, pkgs, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(knitr)
+```
+
+```{r knitr}
+opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE,
+  fig.width=5, fig.height=3, fig.pos='H')
+```
+
+# Model selection
+
+- report/ntrials.png
+- report/unrealvalues.png
+- report/convergence.png
+- report/mrho.png
+
+
+
+# References
