@@ -18,7 +18,10 @@ data(statistics)
 # TPERIOD, last OM year + 11:15
 tperiod <- list(2030:2034)
 
-tune <- vector(mode = "list", length = 9)
+tune <- list()
+
+# DEBUG vcov
+vcov(sr(om)) <- hessian(sr(om))
 
 
 # --- TUNE(trigger) perfect.sa + fixedF.hcr
