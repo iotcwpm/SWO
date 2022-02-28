@@ -66,13 +66,16 @@ test$perf_hcst_090MSY <- mp(om, oem, ctrl=control, args=mseargs)
 plot(om, test$perf_hcst_090MSY)
 plot_hockeystick.hcr(control$hcr) + xlab("SSB(t)")+ ylab("catch (t)")
 
+# SAVE
+
 save(test, file="model/test_perf.Rdata", compress="xz")
 
 plot(om, test)
 
-test <- list()
 
 # --- TEST jabba.sa
+
+test <- list()
 
 # jabba.sa + fixedF.hcr
 
@@ -110,4 +113,8 @@ test$jabba_hcst_090MSY <- mp(om, oem, ctrl=control, args=mseargs)
 
 plot(om, test$jabba_hcst_090MSY)
 
+# SAVE
+
 save(test, file="model/test_jabba.Rdata", compress="xz")
+
+plot(om, test)
