@@ -10,7 +10,7 @@
 source("model.R")
 
 library(doParallel)
-registerDoParallel(25)
+registerDoParallel(8)
 
 # load statistics
 data(statistics)

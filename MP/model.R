@@ -25,8 +25,16 @@ registerDoParallel(25)
 
 # DATA
 load("data/om.Rdata")
+# --- DEBUG
+vcov(sr(om)) <- hessian(sr(om))
 
-# DEBUG
+# SUBSAMPLE for testing
+idx <- sample(seq(500), 250)
+om <- iter(om,  idx)
+oem <- iter(oem, idx)
+
+# SET Ftarget and SBlim
+
 refpts(om)$Ftarget <- refpts(om)$FMSY 
 refpts(om)$SBlim <- refpts(om)$SBMSY * 0.20
 
