@@ -11,27 +11,10 @@ library(mse)
 
 source("utilities.R")
 
-# progressr
-
-#library(progressr)
-#handlers(global=TRUE)
-
-#library(doFuture)
-#registerDoFuture()
-#plan(multicore, workers=25)
-
-library(doParallel)
-registerDoParallel(25)
-
 # DATA
 load("data/om.Rdata")
 # --- DEBUG
 vcov(sr(om)) <- hessian(sr(om))
-
-# SUBSAMPLE for testing
-idx <- sample(seq(500), 250)
-om <- iter(om,  idx)
-oem <- iter(oem, idx)
 
 # SET Ftarget and SBlim
 
@@ -41,14 +24,3 @@ refpts(om)$SBlim <- refpts(om)$SBMSY * 0.20
 # MSE arguments
 
 mseargs <- list(iy=2019, data_lag=2, frq=3)
-
-# METRICS
-
-mets <- list(Rec=function(x) unitSums(rec(x)), SB=function(x) unitSums(ssb(x)),
-  C=function(x) unitSums(catch(x)), F=function(x) unitMeans(fbar(x)))
-
-# RELATIVE metrics
-
-relmets <- list(SBMSY=function(x) unitSums(ssb(x)) %/% refpts(om)$SBMSY,
-  SB0=function(x) unitSums(ssb(x)) %/% refpts(om)$SB0,
-  FMSY=function(x) unitMeans(fbar(x)) %/% refpts(om)$FMSY) 

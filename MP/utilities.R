@@ -11,7 +11,8 @@ library(JABBA)
 
 # jabba.sa {{{
 
-jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)), ...) {
+jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)),
+  model.type="Fox", ...) {
 
   # PREPARE outputs
 
@@ -23,10 +24,12 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)), ...
   conv <- rep(0, args$it)
 
   # progressr
-  #p <- progressr::progressor(steps=dim(stk)[6])
+  # p <- progressr::progressor(steps=args$it)
 
   # LOOP
   for(i in seq(args$it)) {
+
+    # p(sprintf("x=%g", i))
    
     # EXTRACT catch and index
     
@@ -37,13 +40,13 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)), ...
 
     # CONSTRUCT input object
     inp <- build_jabba(catch=ca, cpue=id, se=se,
-      assessment="ALB", scenario="test", model.type="Fox", sigma.est=FALSE,
+      assessment="ALB", scenario="test", model.type=model.type, sigma.est=FALSE,
       fixed.obsE=0.05, verbose=FALSE)
     
     # FIT
     # capture.output({fit <- fit_jabba(inp, quickmcmc=TRUE)}, type="message")
     fit <- tryCatch(
-      fit_jabba(inp, quickmcmc=TRUE, verbose=FALSE, progress.bar="none"),
+      fit_jabba(inp, quickmcmc=TRUE, verbose=FALSE, progress.bar="none", ...),
       # error, RETURN 0 output
       error = function(e) return(list(
         timeseries=array(9, dim=c(dim(ca)[1],1,1)),
@@ -60,8 +63,6 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)), ...
     if(length(fit) > 2) {
       conv[i] <- 1
     }
-
-    #p()
   }
 
   # STORE outputs: biomass in @stock
@@ -73,4 +74,16 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)), ...
   
   list(stk = stk, tracking = tracking)
 }
+# }}}
+
+# METRICS {{{
+
+mets <- list(Rec=function(x) unitSums(rec(x)), SB=function(x) unitSums(ssb(x)),
+  C=function(x) unitSums(catch(x)), F=function(x) unitMeans(fbar(x)))
+
+# RELATIVE metrics
+
+relmets <- list(SBMSY=function(x) unitSums(ssb(x)) %/% refpts(om)$SBMSY,
+  SB0=function(x) unitSums(ssb(x)) %/% refpts(om)$SB0,
+  FMSY=function(x) unitMeans(fbar(x)) %/% refpts(om)$FMSY) 
 # }}}
