@@ -10,7 +10,7 @@
 source("model.R")
 
 library(doParallel)
-registerDoParallel(3)
+registerDoParallel(2)
 
 # load statistics
 data(statistics)
@@ -19,9 +19,9 @@ data(statistics)
 tperiod <- list(2034:2039)
 
 # PATH in anunna
-outpath <- "/home/WUR/mosqu003/backup/swo/MP/model/jabba"
-options(parallelly.availableCores.methods = "slurm")
-#outpath <- "model/jabba"
+#outpath <- "/home/WUR/mosqu003/backup/swo/MP/model/jabba"
+#options(parallelly.availableCores.methods = "slurm")
+outpath <- "model/jabba"
 
 
 # --- TUNE(trigger) jabba.sa + hockeystick.hcr
@@ -35,6 +35,9 @@ control <- mpCtrl(list(
 jabba_hcst_05_trig <- tunebisect(om, oem=oem, control=control, args=mseargs,  
   metrics=mets[c("SB", "F")], statistic=statistics["green"], years=tperiod,
   tune=list(trigger=c(0.35, 0.75)), prob=0.5, tol=0.02, maxit=12, parallel=TRUE)
+
+performance(jabba_hcst_05_trig, metrics=mets[c("SB", "F")],
+  statistics=statistics["green"], years=tperiod)
 
 saveRDS(jabba_hcst_05_trig, file=file.path(outpath, "jabba_hcst_05_trig.Rds"),
   compress="xz")

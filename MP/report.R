@@ -22,3 +22,13 @@ x <- tracking(test[[1]])
 
 
 # }}}
+
+# tune_perfect
+
+plot(om, tune[1:3])
+
+# perf_hcst_05_trig
+
+plot(om, tune[[4]])
+
+# IS trigger being hit?

@@ -76,7 +76,22 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)),
 }
 # }}}
 
-# METRICS {{{
+# refpts(FLStock) {{{
+
+setMethod("refpts", signature(object="FLStock"),
+  function(object) {
+
+    if(is.null(attr(object, "refpts")))
+      return(FLPar())
+    else
+      return(attr(object, "refpts"))
+  }
+)
+# }}}
+
+# metrics {{{
+
+# OVERALL
 
 mets <- list(Rec=function(x) unitSums(rec(x)), SB=function(x) unitSums(ssb(x)),
   C=function(x) unitSums(catch(x)), F=function(x) unitMeans(fbar(x)))
@@ -85,5 +100,7 @@ mets <- list(Rec=function(x) unitSums(rec(x)), SB=function(x) unitSums(ssb(x)),
 
 relmets <- list(SBMSY=function(x) unitSums(ssb(x)) %/% refpts(om)$SBMSY,
   SB0=function(x) unitSums(ssb(x)) %/% refpts(om)$SB0,
+  BK=function(x) unitSums(ssb(x)) %/% refpts(x)$K,
   FMSY=function(x) unitMeans(fbar(x)) %/% refpts(om)$FMSY) 
+
 # }}}

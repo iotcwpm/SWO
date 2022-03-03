@@ -9,15 +9,11 @@
 
 source("model.R")
 
-library(doFuture)
-registerDoFuture()
-plan(multisession, workers=3)
-
 library(doParallel)
 registerDoParallel(3)
 
 # SUBSAMPLE for testing
-idx <- sample(seq(500), 5)
+idx <- sample(seq(500), 50)
 om <- iter(om,  idx)
 oem <- iter(oem, idx)
 
@@ -28,7 +24,7 @@ control <- mpCtrl(list(
   est = mseCtrl(method=jabba.sa),
   hcr = mseCtrl(method=hockeystick.hcr,
     args=list(lim=0.10, trigger=0.40, target=mean(refpts(om)$MSY) * 0.90,
-      metric=relmets$BMSY, output="catch", dlow=0.85, dupp=1.15))))
+      metric=relmets$BK, output="catch", dlow=0.85, dupp=1.15))))
 
 system.time(jabba_hcst <- mp(om, oem=oem, ctrl=control, args=mseargs, parallel=TRUE))
 
